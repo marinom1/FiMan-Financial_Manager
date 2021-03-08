@@ -1,6 +1,5 @@
 import requests
 from operator import itemgetter
-PolygonIOKey = 'EBhOSptZrm9llgHih0pHDC2KDSyWlaDO'
 
 def main():
     enterTickers = input('Enter your preferred stock tickers (FB AMZN APPL NFLX GOOGL etc.): ')
