@@ -22,7 +22,7 @@ def getTicker(tickerList):
         responseNews = requests.get(news)
         detailsJSON = responseDetails.json()
         newsJSON = responseNews.json()
-
+        
         print('Ticker Details:\n', detailsJSON)
         print('')
         print('Ticker News:\n', newsJSON)
