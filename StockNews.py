@@ -5,7 +5,6 @@ from config import PolygonIOKey
 def main():
     enterTickers = input('Enter your preferred stock tickers (FB AMZN APPL NFLX GOOGL etc.): ')
     enterTickers = enterTickers.upper()
-    print(enterTickers)
     tickerList = enterTickers.split()
     # print(tickerList)
     print('Generating news articles for selected tickers...')
@@ -22,11 +21,6 @@ def getTicker(tickerList):
         responseNews = requests.get(news)
         detailsJSON = responseDetails.json()
         newsJSON = responseNews.json()
-        
-        print('Ticker Details:\n', detailsJSON)
-        print('')
-        print('Ticker News:\n', newsJSON)
-        print('')
 
         for i in range(len(newsJSON)):
             title = newsJSON[i]['title']
