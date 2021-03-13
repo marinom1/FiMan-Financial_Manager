@@ -1,51 +1,76 @@
 import json
 import os
 
+from home_page import *
 
 def main():
     """This program shall always run when user first executes the application"""
-    print("Welcome to FiMan, a Financial Manager Software Application")
+    while (True):
+        print("Welcome to FiMan, a Financial Manager Software Application")
 
-    # Load data from profiles.json
-    there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+        # Load data from profiles.json
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
 
-    # "Home Page"
-    valid_input = False
-    while valid_input == False:
-        print("Type 1 to register a new profile")
-        print("Type 2 to open an existing profile")
-        print("Type 3 to exit program")
-        user_choice = input("")
-        print("You selected", user_choice)
-        if (user_choice == "1"):  # Register new profile
-            valid_input = True
-            list_of_information = register_new_profile()  # User will go through registration, then their info is stored in list_of_information
-            write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles, list_of_information)
-            print("New Profile Registered Successfully! Name:", list_of_information[0], "- Features:",
-                  list_of_information[1])
+        # "Landing Page"
+        valid_input = False
+        while valid_input == False:
+            print("Type 1 to register a new profile")
+            print("Type 2 to open an existing profile")
+            print("Type 3 to exit program")
+            user_choice = input("")
+            print("You selected", user_choice, "\n")
+            if (user_choice == "1"):  # Register new profile
+                valid_input = True
+                list_of_information = register_new_profile()  # User will go through registration, then their info is stored in list_of_information
+                write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles, list_of_information)
+                print("New Profile Registered Successfully! Name:", list_of_information[0], "- Features:",
+                      list_of_information[1])
+                valid_input = False
 
-        elif (user_choice == "2"):  # Go to existing profile
-            # TODO - Continuation of login process
-            valid_input = True
-            print("User has existing profile")
-        elif (user_choice == "3"): # Exit program
-            valid_input = True
-            print("Exiting program...")
-            exit(0)
-        elif (user_choice == "debug"): # I can test stuff in here
-            test_name = input("Enter a username and I will check if it exists")
-            found_username = False
-            for i in range(len(loaded_profiles["profiles"])):
-                if (loaded_profiles["profiles"][i]["name"] == test_name):
-                    print(test_name, "exists!")
-                    found_username = True
-                    break
+                # This resolved a bug i encountered when creating the very first profile, then trying to login to it right away gave an error
+                there_are_existing_profiles, loaded_profiles = load_existing_profiles()
 
-            if (found_username == False):
-                print("Sorry,", test_name, "does not exist in our system")
+            elif (user_choice == "2"):  # Go to existing profile
 
-        else:
-            print("Please type a valid command.")
+                if (os.stat("profiles.json").st_size == 0):
+                    print("There are no existing profiles. Please register a profile.")
+                else:
+                    valid_input = True
+                    for i in range(len(loaded_profiles["profiles"])):
+                        print(i, loaded_profiles["profiles"][i]["name"])
+                    print("")
+                    while(True):
+                        chosenProfile = int(input("Please enter in the number of your profile: "))
+                        if (chosenProfile < 0) or (chosenProfile >= len(loaded_profiles["profiles"])):
+                            print("Invalid input. Please select again")
+                        else:
+                            user_name = loaded_profiles["profiles"][chosenProfile]["name"]
+                            user_features = loaded_profiles["profiles"][chosenProfile]["features"]
+                            break
+
+                    print("Successfully logged into " + user_name + "!")
+                    profile = [chosenProfile, user_name, user_features] #Pack the chosen profile's data into a list to send to the home page
+                    print("Now loading home page\n")
+                    run_home_page(profile)
+
+            elif (user_choice == "3"): # Exit program
+                valid_input = True
+                print("Exiting program...")
+                exit(0)
+            elif (user_choice == "debug"): # I can test stuff in here
+                test_name = input("Enter a username and I will check if it exists")
+                found_username = False
+                for i in range(len(loaded_profiles["profiles"])):
+                    if (loaded_profiles["profiles"][i]["name"] == test_name):
+                        print(test_name, "exists!")
+                        found_username = True
+                        break
+
+                if (found_username == False):
+                    print("Sorry,", test_name, "does not exist in our system")
+
+            else:
+                print("Please type a valid command.")
 
 def register_new_profile():
     """Walks the user through registering a new profile
@@ -122,7 +147,7 @@ def load_existing_profiles():
 
     # Check if profiles.json exists first
     if os.path.isfile("profiles.json"):
-        print("File exists!")
+        print("Found profiles.json - Loading Profiles Now")
     else:
         print("profiles.json doesn't exist - Creating profiles.json")
         f = open("profiles.json", "w")
