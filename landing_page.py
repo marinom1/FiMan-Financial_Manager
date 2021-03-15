@@ -24,7 +24,8 @@ def main():
                 list_of_information = register_new_profile()  # User will go through registration, then their info is stored in list_of_information
                 write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles, list_of_information)
                 print("New Profile Registered Successfully! Name:", list_of_information[0], "- Features:",
-                      list_of_information[1])
+                      list_of_information[1], "- Total Wealth:", list_of_information[2],
+                      "- Budget:", list_of_information[3])
                 valid_input = False
 
                 # This resolved a bug i encountered when creating the very first profile, then trying to login to it right away gave an error
@@ -46,10 +47,12 @@ def main():
                         else:
                             user_name = loaded_profiles["profiles"][chosenProfile]["name"]
                             user_features = loaded_profiles["profiles"][chosenProfile]["features"]
+                            user_wealth = loaded_profiles["profiles"][chosenProfile]["total_wealth"]
+                            user_budget = loaded_profiles["profiles"][chosenProfile]["budget"]
                             break
 
                     print("Successfully logged into " + user_name + "!")
-                    profile = [chosenProfile, user_name, user_features] #Pack the chosen profile's data into a list to send to the home page
+                    profile = [chosenProfile, user_name, user_features, user_wealth, user_budget] #Pack the chosen profile's data into a list to send to the home page
                     print("Now loading home page\n")
                     run_home_page(profile)
 
@@ -105,15 +108,34 @@ def register_new_profile():
                 enabled_features.add(current_user_input)
             else:
                 print(current_user_input, "is not a valid input. Not accepting.")
-
-        # Check to make sure enabled_features contains valid input
         if (len(enabled_features) > 2) or (len(enabled_features) == 0):
             print("Invalid input. Please reselect valid input")
         else:
-            features_are_valid = True
+                    features_are_valid = True
+    total_wealth = 0.00
+    budget = 0.00
+    wealth_is_valid = False
+    while wealth_is_valid == False:
+        total_wealth = float(input("Please enter your current total wealth (ex: 10.00): "))
+        check_float = isinstance(total_wealth, float)
+        if check_float == False:
+            print("Please enter a valid amount")
+        else:
+            wealth_is_valid = True
+    budget_is_valid = False
+    while budget_is_valid == False:
+        budget = float(input("Please enter your current monthly budget (ex: 10.00): "))
+        check_float = isinstance(budget, float)
+        if check_float == False:
+            print("Please enter a valid amount")
+        else:
+            budget_is_valid = True
+    # Check to make sure enabled_features contains valid input
+
+
 
     # Return the name and enabled features for the the new profile in a list
-    list_of_information = [user_name, enabled_features]
+    list_of_information = [user_name, enabled_features, total_wealth, budget]
     return list_of_information
 
 
@@ -187,7 +209,9 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         data['profiles'] = []
         data['profiles'].append({
             'name': list_of_information[0],
-            'features': list(list_of_information[1])
+            'features': list(list_of_information[1]),
+            'total_wealth': list_of_information[2],
+            'budget': list_of_information[3]
         })
         with open('profiles.json', 'w') as outfile:
             json.dump(data, outfile, indent=2, sort_keys=False)
@@ -197,7 +221,9 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         # Simply append the new profile data to the profiles.json file
         loaded_profiles['profiles'].append({
             'name': list_of_information[0],
-            'features': list(list_of_information[1])
+            'features': list(list_of_information[1]),
+            'total_wealth': list_of_information[2],
+            'budget': list_of_information[3]
         })
         with open('profiles.json', 'w') as outfile:
             json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
