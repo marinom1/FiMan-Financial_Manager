@@ -1,7 +1,51 @@
-import tkinter as tk                # python 3
-from tkinter import font as tkfont  # python 3
+import tkinter as tk
+from tkinter import font as tkfont
+import json
+import os
+
 #from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 #helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
+
+def load_existing_profiles():
+    """First, this function will ensure that the file profiles.json exists. If it doesn't, then we create it.
+    Then, this function checks if there are already existing profiles. If there are, we load them into program.
+    If there are no existing profiles, then make the boolean existing_profiles False
+
+    Returns
+    -------
+    there_are_existing_profiles : bool
+        boolean that tells us if there are existing profiles already in profiles.json
+
+    loaded_profiles : json
+        existing data from profiles.json if there are existing profiles, empty dict if there are none
+    """
+
+    # Check if profiles.json exists first
+    if os.path.isfile("profiles.json"):
+        print("Found profiles.json - Loading Profiles Now")
+    else:
+        print("profiles.json doesn't exist - Creating profiles.json")
+        f = open("profiles.json", "w")
+        f.write("")  # dont think this is needed anymore
+
+    if os.stat("profiles.json").st_size == 0:  # if profiles.json is empty (A.K.A no existing profiles)
+        there_are_existing_profiles = False
+    else:
+        there_are_existing_profiles = True
+
+    if (there_are_existing_profiles):
+        with open('profiles.json') as json_file:
+            loaded_profiles = json.load(json_file)
+
+    else:  # No profiles made previously
+        loaded_profiles = {}
+
+    return there_are_existing_profiles, loaded_profiles
+
+there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+
+current_profile_ID = -1
+
 
 class SampleApp(tk.Tk):
 
@@ -31,6 +75,8 @@ class SampleApp(tk.Tk):
 
         self.show_frame("StartPage")
 
+
+
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = self.frames[page_name]
@@ -40,6 +86,10 @@ class SampleApp(tk.Tk):
 class StartPage(tk.Frame): #Welcome to FiMan
 
     def __init__(self, parent, controller):
+
+        def exit_program():
+            exit(0)
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
@@ -49,7 +99,7 @@ class StartPage(tk.Frame): #Welcome to FiMan
                             command=lambda: controller.show_frame("PageOne"))
         button2 = tk.Button(self, text="Login to existing profile",
                             command=lambda: controller.show_frame("PageFour"))
-        button3 = tk.Button(self, text="Exit FiMan")
+        button3 = tk.Button(self, text="Exit FiMan", command=lambda: exit_program())
         button1.pack()
         button2.pack()
         button3.pack()
@@ -124,26 +174,55 @@ class PageThree(tk.Frame): #Registration Successful
 class PageFour(tk.Frame): #Login to Existing Profile
 
     def __init__(self, parent, controller):
+        def get_profile_ID(i):
+            print("Profile ID in Login to Existing Profile is:",i)
+            global current_profile_ID
+            current_profile_ID = i
+            print("The current_profile_ID is:", current_profile_ID)
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Please select your profile", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Michael",
-                           command=lambda: controller.show_frame("PageFive"))
-        button.pack()
+        for i in range(len(loaded_profiles["profiles"])):
+            # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
+            button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
+                               command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageFive")])
+
+            button.pack()
+
 
 class PageFive(tk.Frame): #Login Successful
 
     def __init__(self, parent, controller):
+        var = tk.StringVar()
+        var.set("")
+
+        def show_profile_details():
+            var.set(loaded_profiles["profiles"][current_profile_ID])
+        def restore_default_text():
+            var.set("")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
+
         label = tk.Label(self, text="Login Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+        global current_profile_ID
+        print("current_profile_ID in Login Successful page is:", current_profile_ID)
+        label1 = tk.Label(self, textvariable=var, font=controller.title_font)
+        label1.pack()
         button = tk.Button(self, text="Go to your Home Page",
-                           command=lambda: controller.show_frame("StartPage"))
+                           command=lambda: [restore_default_text(), controller.show_frame("StartPage")])
         button.pack()
+
+        button1 = tk.Button(self, text="Click to see your profile details to make sure you logged into the right profile",
+                           command=lambda: show_profile_details())
+        button1.pack()
 
 if __name__ == "__main__":
     app = SampleApp()
     app.geometry("700x500")
     app.mainloop()
+
+
