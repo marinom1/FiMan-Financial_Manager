@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import font as tkfont
 import json
 import os
+import sys
 
 #from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 #helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
@@ -46,10 +47,17 @@ there_are_existing_profiles, loaded_profiles = load_existing_profiles()
 
 current_profile_ID = -1
 
+#Global variables used during registration process
+new_name = ""
+new_enabled_features = [-1]
+enabled_feature1 = 0
+enabled_feature2 = 0 #0 is false, 1 is true
 
 class SampleApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
+
+
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
@@ -73,6 +81,8 @@ class SampleApp(tk.Tk):
             # will be the one that is visible.
             frame.grid(row=0, column=0, sticky="nsew")
 
+        test_var = tk.StringVar()
+        test_var.set("this is a test")
         self.show_frame("StartPage")
 
 
@@ -89,7 +99,6 @@ class StartPage(tk.Frame): #Welcome to FiMan
 
         def exit_program():
             exit(0)
-
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
@@ -107,6 +116,12 @@ class StartPage(tk.Frame): #Welcome to FiMan
 
 class PageOne(tk.Frame): #Register a new profile (Enter name)
 
+    def print_name(self, new_name_var):
+        name = new_name_var.get()
+        print("new_name_var is:", name)
+        global new_name
+        new_name = name
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -114,15 +129,58 @@ class PageOne(tk.Frame): #Register a new profile (Enter name)
         label.pack(side="top", fill="x", pady=10)
         label1 = tk.Label(self, text="Please enter your name")
         label1.pack()
-        name = tk.StringVar()
-        textbox = tk.Entry(self, width=15, textvariable=name)
-        textbox.pack()
+        new_name_var = tk.StringVar()
+        entry = tk.Entry(self, width=15, textvariable=new_name_var)
+        entry.pack()
         button = tk.Button(self, text="Next",
-                           command=lambda: controller.show_frame("PageTwo"))
+                           command=lambda: [self.print_name(new_name_var), controller.show_frame("PageTwo")])
         button.pack()
 
 
 class PageTwo(tk.Frame): #Register a new profile (Choose Features)
+
+    def print_details(self, feature1_var, feature2_var):
+        print("Is feature 1 checked off:",feature1_var.get())
+        print("Is feature 2 checked off:", feature2_var.get())
+        global new_enabled_features
+        new_enabled_features = []
+        print("type of new_enabled_features is:",type(new_enabled_features))
+        if feature1_var.get():
+            print("Does this run")
+            new_enabled_features.append("1")
+        if feature2_var.get():
+            new_enabled_features.append("2")
+        print("new_name is", new_name)
+        print("new_enabled_features is:", new_enabled_features)
+
+    def write_new_profile_to_file(self):
+        global new_name
+        global new_enabled_features
+        # if there aren't any existing profiles in profiles.json
+        if there_are_existing_profiles == False:
+            # Must create the json object from scratch first since it does not exist yet
+            data = {}
+            data['profiles'] = []
+            data['profiles'].append({
+                'name': new_name,
+                'features': new_enabled_features,
+                'total_wealth': 10.00,
+                'budget': 10.00
+            })
+            with open('profiles.json', 'w') as outfile:
+                json.dump(data, outfile, indent=2, sort_keys=False)
+
+        # else if there are already existing profiles in profiles.json
+        elif there_are_existing_profiles == True:
+            # Simply append the new profile data to the profiles.json file
+            loaded_profiles['profiles'].append({
+                'name': new_name,
+                'features': new_enabled_features,
+                'total_wealth': 10.00,
+                'budget': 10.00
+            })
+            with open('profiles.json', 'w') as outfile:
+                json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -151,14 +209,17 @@ class PageTwo(tk.Frame): #Register a new profile (Choose Features)
         label9 = tk.Label(self,text="Please check off the features you would like to enable (Can change later)")
         label9.pack()
         #Checkboxes
-        checkbutton1 = tk.Checkbutton(self, text="Budget Manager")
+        feature1_var = tk.IntVar()
+        feature2_var = tk.IntVar()
+        checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
         checkbutton1.pack()
-        checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool")
+        checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
         button = tk.Button(self, text="Complete Registration",
-                           command=lambda: controller.show_frame("PageThree"))
+                           command=lambda: [ self.print_details(feature1_var,feature2_var), self.write_new_profile_to_file(), controller.show_frame("PageThree")])
         button.pack()
+
 
 class PageThree(tk.Frame): #Registration Successful
 
@@ -171,6 +232,7 @@ class PageThree(tk.Frame): #Registration Successful
                            command=lambda: controller.show_frame("StartPage"))
         button.pack()
 
+
 class PageFour(tk.Frame): #Login to Existing Profile
 
     def __init__(self, parent, controller):
@@ -179,6 +241,30 @@ class PageFour(tk.Frame): #Login to Existing Profile
             global current_profile_ID
             current_profile_ID = i
             print("The current_profile_ID is:", current_profile_ID)
+
+        def refresh_profiles():
+            print("Does this print 1")
+
+            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+
+            #Destroy the existing stuff
+            for widget in PageFour.winfo_children(self):
+                widget.destroy()
+
+
+            label = tk.Label(self, text="Please select your profile", font=controller.title_font)
+            label.pack(side="top", fill="x", pady=10)
+            print("len of loaded profiles here is:", len(loaded_profiles["profiles"]))
+            for i in range(len(loaded_profiles["profiles"])):
+                # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
+                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
+                                   command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageFive")])
+
+                button.pack()
+            button1 = tk.Button(self, text="Click here to refresh profiles",
+                                command=lambda: [refresh_profiles()])
+            button1.pack()
+            print("Does this print 2")
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -190,7 +276,9 @@ class PageFour(tk.Frame): #Login to Existing Profile
                                command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageFive")])
 
             button.pack()
-
+        button1 = tk.Button(self, text="Click here to refresh profiles",
+                           command=lambda: [refresh_profiles()])
+        button1.pack()
 
 class PageFive(tk.Frame): #Login Successful
 
@@ -210,7 +298,7 @@ class PageFive(tk.Frame): #Login Successful
         label.pack(side="top", fill="x", pady=10)
         global current_profile_ID
         print("current_profile_ID in Login Successful page is:", current_profile_ID)
-        label1 = tk.Label(self, textvariable=var, font=controller.title_font)
+        label1 = tk.Label(self, textvariable=var)
         label1.pack()
         button = tk.Button(self, text="Go to your Home Page",
                            command=lambda: [restore_default_text(), controller.show_frame("StartPage")])
