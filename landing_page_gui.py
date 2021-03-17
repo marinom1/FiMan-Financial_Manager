@@ -11,12 +11,10 @@ def load_existing_profiles():
     """First, this function will ensure that the file profiles.json exists. If it doesn't, then we create it.
     Then, this function checks if there are already existing profiles. If there are, we load them into program.
     If there are no existing profiles, then make the boolean existing_profiles False
-
     Returns
     -------
     there_are_existing_profiles : bool
         boolean that tells us if there are existing profiles already in profiles.json
-
     loaded_profiles : json
         existing data from profiles.json if there are existing profiles, empty dict if there are none
     """
@@ -27,7 +25,7 @@ def load_existing_profiles():
     else:
         print("profiles.json doesn't exist - Creating profiles.json")
         f = open("profiles.json", "w")
-        f.write("")  # dont think this is needed anymore
+        f.write('{\n\t"profiles": []\n}')
 
     if os.stat("profiles.json").st_size == 0:  # if profiles.json is empty (A.K.A no existing profiles)
         there_are_existing_profiles = False
@@ -270,6 +268,9 @@ class PageFour(tk.Frame): #Login to Existing Profile
         self.controller = controller
         label = tk.Label(self, text="Please select your profile", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+        global there_are_existing_profiles
+        global loaded_profiles
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
         for i in range(len(loaded_profiles["profiles"])):
             # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
             button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
@@ -312,5 +313,3 @@ if __name__ == "__main__":
     app = SampleApp()
     app.geometry("700x500")
     app.mainloop()
-
-
