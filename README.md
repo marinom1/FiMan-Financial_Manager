@@ -1,8 +1,8 @@
-# Software Engineering Project
+# Finance Manager
 
 ## Description
 
-A financial management application with a modular feature system built with Python.
+A financial management application with a modular feature system built with Python and tkinter.
 
 ## Features
 
