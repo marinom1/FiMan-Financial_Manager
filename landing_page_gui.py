@@ -23,10 +23,11 @@ def load_existing_profiles():
     # Check if profiles.json exists first
     if os.path.isfile("profiles.json"):
         print("Found profiles.json - Loading Profiles Now")
+    # Creates profiles.json that contains a profiles dictionary that contains an empty array for each profile
     else:
         print("profiles.json doesn't exist - Creating profiles.json")
         f = open("profiles.json", "w")
-        f.write("")  # dont think this is needed anymore
+        f.write('{\n\t"profiles": []\n}')
 
     if os.stat("profiles.json").st_size == 0:  # if profiles.json is empty (A.K.A no existing profiles)
         there_are_existing_profiles = False
