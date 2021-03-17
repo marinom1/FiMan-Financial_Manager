@@ -1,18 +1,35 @@
-import requests
-from config import PolygonIOKey
+import requests, json
+from config import PolygonIOKey, FinnhubIOKey
 
 # Ticker Details
 def getTicker(tickerList):
     for ticker in tickerList:
         print('Ticker:', ticker)
-        details = f'https://api.polygon.io/v1/meta/symbols/{ticker}/company?&apiKey={PolygonIOKey}'
+        # details = f'https://api.polygon.io/v1/meta/symbols/{ticker}/company?&apiKey={PolygonIOKey}'
+        detailsRequest = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
+        detailsResponse = requests.get(detailsRequest)
+        detailsJSON = detailsResponse.json()
+        detailsJSON = str(detailsJSON)
+        detailsJSON = detailsJSON.replace("'", '"')
+        detailsJSON = json.loads(detailsJSON)
+        detailsJSON = json.dumps(detailsJSON, indent = 4, sort_keys = True)
 
-        responseDetails = requests.get(details)
-        detailsJSON = responseDetails.json()
+        print('Ticker Details:\n', detailsJSON)
 
-        print('Ticker Details:')
-        # print(detailsJSON)
+        # FinnhubIO
+        """
+        def displayDetails():
+            logo
+            name
+            country
+            marketCapitalization
+            volume
+            exchange
+            industry
+        """
 
+        # PolygonIO Response
+        """
         def displayDetails():
             logo = detailsJSON['logo']
             country = detailsJSON['hq_country']
@@ -41,9 +58,10 @@ def getTicker(tickerList):
             print('')
 
         displayDetails()
+        """
 
 def main():
-    enterTickers = input('Enter your preferred stock tickers (FB AMZN APPL NFLX GOOGL etc.): ')
+    enterTickers = input('Enter your preferred stock tickers (FB AMZN AAPL NFLX GOOGL etc.): ')
     enterTickers = enterTickers.upper()
     tickerList = enterTickers.split()
     # print(tickerList)
