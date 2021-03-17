@@ -5,8 +5,8 @@ def run_settings_page(profile):
         print("Type 1 to change your profile name")
         print("Type 2 to change your enabled features")
         print("Type 3 to exit settings")
-        user_input = int(input(""))
-        if (user_input == 1): #Change Profile Name
+        user_input = input("")
+        if (user_input == "1"): #Change Profile Name
             print("Your current name is", profile[1])
             while (True):
                 user_input = input("Enter in your new profile name")
@@ -25,10 +25,9 @@ def run_settings_page(profile):
                 json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
             print("Successfully updated profile name to", profile[1])
-            print("This is what i am returning:",profile[0],profile[1],profile[2])
             return profile
 
-        elif (user_input == 2):
+        elif (user_input == "2"):
             print("Your current enabled features are:", profile[2])
 
             print_features()
@@ -64,14 +63,13 @@ def run_settings_page(profile):
                     json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
                 print("Successfully updated profile's enabled features to ", profile[2])
-                print("This is what I am returning:", profile[0],profile[1],profile[2])
                 return profile
 
-
-        elif (user_input == 3):
+        elif (user_input == "3"):
             print("Exiting Settings Page...\n")
             return profile
-            break
+        else:
+            print("Please enter a valid command.")
 
 
 def print_features():

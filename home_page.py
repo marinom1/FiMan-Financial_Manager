@@ -8,11 +8,13 @@ def run_home_page(profile):
         print("Type 1 to open settings page")
         print("Type 2 to open Budget Manager")
         print("Type 3 to Logout back to the landing page")
-        user_input = int(input(""))
-        if(user_input == 1):
+        user_input = input("")
+        if(user_input == "1"):
             profile = run_settings_page(profile)
-        elif(user_input == 2):
+        elif(user_input == "2"):
             profile = run_budget_manager(profile)
-        elif(user_input == 3):
+        elif(user_input == "3"):
             print("Logging out of your profile.")
             break
+        else:
+            print("Please enter a valid command")
