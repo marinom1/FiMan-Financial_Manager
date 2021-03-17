@@ -1,4 +1,4 @@
-# Software Engineering Project
+# Finance Manager
 
 ## Description
 
