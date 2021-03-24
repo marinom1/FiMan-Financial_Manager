@@ -207,6 +207,18 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         # Must create the json object from scratch first since it does not exist yet
         data = {}
         data['profiles'] = []
+
+        # Do this first to convert set to list
+        list_of_features = list(list_of_information[1])
+        print("list of features is:", list_of_features)
+        for i in range(0, len(list_of_features)):
+            list_of_features[i] = int(list_of_features[i])
+        list_of_features.sort()
+        for i in range(0, len(list_of_features)):
+            list_of_features[i] = str(list_of_features[i])
+        list_of_information[1] = list_of_features
+
+        #Now append to profiles.json
         data['profiles'].append({
             'name': list_of_information[0],
             'features': list(list_of_information[1]),
@@ -218,10 +230,21 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
 
     # else if there are already existing profiles in profiles.json
     elif there_are_existing_profiles == True:
+        # First sort the list of enabled features smallest to largest
+        list_of_features = list(list_of_information[1])
+        print("list of features is:", list_of_features)
+        for i in range(0, len(list_of_features)):
+            list_of_features[i] = int(list_of_features[i])
+        list_of_features.sort()
+        for i in range(0, len(list_of_features)):
+            list_of_features[i] = str(list_of_features[i])
+        list_of_information[1] = list_of_features
+
+
         # Simply append the new profile data to the profiles.json file
         loaded_profiles['profiles'].append({
             'name': list_of_information[0],
-            'features': list(list_of_information[1]),
+            'features': list_of_information[1],
             'total_wealth': list_of_information[2],
             'budget': list_of_information[3]
         })
