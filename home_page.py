@@ -1,6 +1,6 @@
 from settings_page import *
 from budget_manager import *
-def run_home_page(profile):
+def run_home_page(profile): # profile = [index of current profile in json, user_name, user_features, user_wealth, user_budget]
     while (True):
         print("Home Page Now running - Your profile ID number is:",profile[0])
         print("Welcome "+profile[1]+"! Your enabled features are", profile[2])

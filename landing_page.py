@@ -228,4 +228,3 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         with open('profiles.json', 'w') as outfile:
             json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
 
-main()

@@ -1,10 +1,11 @@
 import json
 import os
-def run_settings_page(profile):
+def run_settings_page(profile): # profile = [index of current profile in json, user_name, user_features, user_wealth, user_budget]
     while (True):
         print("Type 1 to change your profile name")
         print("Type 2 to change your enabled features")
-        print("Type 3 to exit settings")
+        print("Type 3 to delete your profile")
+        print("Type 4 to exit settings")
         user_input = input("")
         if (user_input == "1"): #Change Profile Name
             print("Your current name is", profile[1])
@@ -65,7 +66,27 @@ def run_settings_page(profile):
                 print("Successfully updated profile's enabled features to ", profile[2])
                 return profile
 
-        elif (user_input == "3"):
+        elif (user_input == "3"): #Delete profile
+            print("Are you sure you want to delete your profile?\n")
+            user_input = input("Are you sure you want to delete your profile? (yes or no): ")
+            if user_input == "yes":
+                print("profile[0] is: ",profile[0])
+                print("Now deleting current profile...")
+                #Now remove the profile from json
+                with open("profiles.json", "r+") as file:
+                    loaded_profiles = json.load(file)
+                loaded_profiles["profiles"].pop(profile[0])
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                print("Your profile was deleted successfully. Thank you for using FiMan.")
+                print("Now exiting...")
+                exit(0)
+            else:
+                continue
+            return profile
+
+        elif (user_input == "4"):
             print("Exiting Settings Page...\n")
             return profile
         else:
