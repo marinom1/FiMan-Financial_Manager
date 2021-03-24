@@ -1,6 +1,6 @@
 import json
 import os
-def run_settings_page(profile): # profile = [index of current profile in json, user_name, user_features, user_wealth, user_budget]
+def run_settings_page(profile): # profile = [index of current profile in json, user_name, user_features, user_balance, user_budget]
     while (True):
         print("Type 1 to change your profile name")
         print("Type 2 to change your enabled features")
@@ -67,12 +67,11 @@ def run_settings_page(profile): # profile = [index of current profile in json, u
                 return profile
 
         elif (user_input == "3"): #Delete profile
-            print("Are you sure you want to delete your profile?\n")
-            user_input = input("Are you sure you want to delete your profile? (yes or no): ")
+            user_input = input("Are you sure you want to DELETE your profile? (yes or no): ")
             if user_input == "yes":
                 print("profile[0] is: ",profile[0])
                 print("Now deleting current profile...")
-                #Now remove the profile from json
+                # Now remove the profile from json
                 with open("profiles.json", "r+") as file:
                     loaded_profiles = json.load(file)
                 loaded_profiles["profiles"].pop(profile[0])
