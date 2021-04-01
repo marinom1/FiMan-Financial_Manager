@@ -49,10 +49,11 @@ def main():
                             user_features = loaded_profiles["profiles"][chosenProfile]["features"]
                             user_balance = loaded_profiles["profiles"][chosenProfile]["total_balance"]
                             user_budget = loaded_profiles["profiles"][chosenProfile]["budget"]
+                            user_expenses = loaded_profiles["profiles"][chosenProfile]["expenses"]
                             break
 
                     print("Successfully logged into " + user_name + "!")
-                    profile = [chosenProfile, user_name, user_features, user_balance, user_budget] #Pack the chosen profile's data into a list to send to the home page
+                    profile = [chosenProfile, user_name, user_features, user_balance, user_budget, user_expenses] #Pack the chosen profile's data into a list to send to the home page
                     print("Now loading home page\n")
                     run_home_page(profile)
 
@@ -114,6 +115,7 @@ def register_new_profile():
                     features_are_valid = True
     total_balance = 0.00
     budget = 0.00
+    expenses = []
     balance_is_valid = False
     while balance_is_valid == False:
         total_balance = float(input("Please enter your current total balance (ex: 10.00): "))
@@ -135,7 +137,7 @@ def register_new_profile():
 
 
     # Return the name and enabled features for the the new profile in a list
-    list_of_information = [user_name, enabled_features, total_balance, budget]
+    list_of_information = [user_name, enabled_features, total_balance, budget, expenses]
     return list_of_information
 
 
@@ -223,7 +225,8 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
             'name': list_of_information[0],
             'features': list(list_of_information[1]),
             'total_balance': list_of_information[2],
-            'budget': list_of_information[3]
+            'budget': list_of_information[3],
+            'expenses': list_of_information[4]
         })
         with open('profiles.json', 'w') as outfile:
             json.dump(data, outfile, indent=2, sort_keys=False)
@@ -246,7 +249,8 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
             'name': list_of_information[0],
             'features': list_of_information[1],
             'total_balance': list_of_information[2],
-            'budget': list_of_information[3]
+            'budget': list_of_information[3],
+            'expenses': list_of_information[4]
         })
         with open('profiles.json', 'w') as outfile:
             json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
