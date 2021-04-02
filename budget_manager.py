@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 def run_budget_manager(profile): # profile = [profile index, profile name, profile enabled features, profile balance, profile budget]
     while (True):
@@ -8,7 +9,8 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
         print("Type 2 to adjust your budget")
         print("Type 3 to enter an expense")
         print("Type 4 to remove an expense")
-        print("Type 5 to exit Budget Manager")
+        print("Type 5 to see a notification")
+        print("Type 6 to exit Budget Manager")
         user_input = input("")
         if (user_input == "1"): #Adjust total balance
             print("Your current total balance is", profile[3])
@@ -102,7 +104,28 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
             print("Successfully removed expense. Updated profile's budget to", profile[4], "\n")
 
         elif (user_input == "5"): #Exit Budget Manager Feature
+            print(generate_notification(profile)+ "\n")
+
+        elif (user_input == "6"): #Exit Budget Manager Feature
             print("Exiting Budget Manager... \n")
             return profile
         else:
             print("Please enter a valid command.")
+
+def generate_notification(profile): # profile = [profile index, profile name, profile enabled features, profile balance, profile budget]
+    """Returns string with the notification"""
+    x = random.randint(1,5) #generate random int between 1 and 4
+    if (x == 1):
+        if (profile[3] > 3400):
+            return "You have more money than the average American has in the bank (> $3,400)"
+        else:
+            return "You have less money than the average American has in the bank (> $3,400)"
+    elif (x == 2):
+        if (profile[4] > 5102):
+            return "The average american spends $5,102 in a month. Your budget is currently more than that"
+        else:
+            return "The average american spends $5,102 in a month. Your budget is currently less than that"
+    elif(x==3):
+        return "Are you taking into consideration your retirement plan?"
+    elif(x==4):
+        return "Only 30% of American households have a long-term financial plan"
