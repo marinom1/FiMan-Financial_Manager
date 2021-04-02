@@ -7,7 +7,8 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
         print("Type 1 to adjust your total balance")
         print("Type 2 to adjust your budget")
         print("Type 3 to enter an expense")
-        print("Type 4 to exit Budget Manager")
+        print("Type 4 to remove an expense")
+        print("Type 5 to exit Budget Manager")
         user_input = input("")
         if (user_input == "1"): #Adjust total balance
             print("Your current total balance is", profile[3])
@@ -60,19 +61,47 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
                     print("Please enter in a valid amount (ex: 10.00)")
                 else:
                     profile[4] = profile[4] - user_input_ex
+                    profile[5].append(user_input_ex)
                     break
             #Now update profiles.json
             with open("profiles.json", "r+") as file:
                 loaded_profiles = json.load(file)
+                loaded_profiles["profiles"][profile[0]]["budget"] = profile[4]
+                loaded_profiles["profiles"][profile[0]]["expenses"] = profile[5]
+
+            os.remove("profiles.json")
+            with open("profiles.json", "w") as file:
+                json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+
+
+            print("Successfully added expense. Updated profile's budget to", profile[4], "\n")
+
+        elif (user_input == "4"):
+            while (True):
+                for i in range(len(profile[5])):
+                    print(i+1, ". ", profile[5][i], "\n")
+                try:
+                    user_input = int(input("Which expense would you like to remove? (Enter the number of the expense)"))
+                except:
+                    print("Please enter in a valid expense (ex: 1, 2, 3)")
+                else:
+                    profile[4] = profile[4] + profile[5][user_input - 1]
+                    profile[5].pop(user_input-1)
+
+                    break
+
+            with open("profiles.json", "r+") as file:
+                loaded_profiles = json.load(file)
+                loaded_profiles["profiles"][profile[0]]["expenses"] = profile[5]
                 loaded_profiles["profiles"][profile[0]]["budget"] = profile[4]
 
             os.remove("profiles.json")
             with open("profiles.json", "w") as file:
                 json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
-            print("Successfully added expense. Updated profile's budget to", profile[4], "\n")
+            print("Successfully removed expense. Updated profile's budget to", profile[4], "\n")
 
-        elif (user_input == "4"): #Exit Budget Manager Feature
+        elif (user_input == "5"): #Exit Budget Manager Feature
             print("Exiting Budget Manager... \n")
             return profile
         else:
