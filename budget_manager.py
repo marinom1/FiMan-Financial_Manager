@@ -9,8 +9,9 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
         print("Type 2 to adjust your budget")
         print("Type 3 to enter an expense")
         print("Type 4 to remove an expense")
-        print("Type 5 to see a notification")
-        print("Type 6 to exit Budget Manager")
+        print("Type 5 to view expense history")
+        print("Type 6 to see a notification")
+        print("Type 7 to exit Budget Manager")
         user_input = input("")
         if (user_input == "1"): # Adjust total balance
             print("Your current total balance is", profile[3])
@@ -111,10 +112,14 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
 
             print("Successfully removed expense. \n")
 
-        elif (user_input == "5"): # Notification Feature
+        elif (user_input == "5"): # View All expenses
+            for i in range(len(profile[5])):
+                print(i + 1, ". ", profile[5][i][0], profile[5][i][1], profile[5][i][2])
+
+        elif (user_input == "6"): # Notification Feature
             print(generate_notification(profile)+ "\n")
 
-        elif (user_input == "6"): # Exit Budget Manager Feature
+        elif (user_input == "7"): # Exit Budget Manager Feature
             print("Exiting Budget Manager... \n")
             return profile
         else:
