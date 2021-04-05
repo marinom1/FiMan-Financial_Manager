@@ -241,6 +241,7 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
             'features': list(list_of_information[1]),
             'total_wealth': list_of_information[2],
             'budget': list_of_information[3]
+        })
         # First sort the list of enabled features smallest to largest
         list_of_features = list(list_of_information[1])
         print("list of features is:", list_of_features)
