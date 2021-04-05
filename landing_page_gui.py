@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import font as tkfont
 import json
 import os
-import sys
+from landing_page import load_existing_profiles
 
 #from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 #helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
@@ -55,7 +55,7 @@ class SampleApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
 
- 
+
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
@@ -162,7 +162,7 @@ class PageTwo(tk.Frame): #Register a new profile (Choose Features)
             data['profiles'].append({
                 'name': new_name,
                 'features': new_enabled_features,
-                'total_wealth': 10.00,
+                'total_balance': 10.00,
                 'budget': 10.00
             })
             with open('profiles.json', 'w') as outfile:
@@ -174,7 +174,7 @@ class PageTwo(tk.Frame): #Register a new profile (Choose Features)
             loaded_profiles['profiles'].append({
                 'name': new_name,
                 'features': new_enabled_features,
-                'total_wealth': 10.00,
+                'total_balance': 10.00,
                 'budget': 10.00
             })
             with open('profiles.json', 'w') as outfile:
