@@ -113,6 +113,7 @@ def register_new_profile():
             print("Invalid input. Please reselect valid input")
         else:
                     features_are_valid = True
+
     total_balance = 0.00
     budget = 0.00
     expenses = []
@@ -124,6 +125,7 @@ def register_new_profile():
             print("Please enter a valid amount")
         else:
             balance_is_valid = True
+
     budget_is_valid = False
     while budget_is_valid == False:
         budget = float(input("Please enter your current monthly budget (ex: 10.00): "))
@@ -233,6 +235,12 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
 
     # else if there are already existing profiles in profiles.json
     elif there_are_existing_profiles == True:
+        # Simply append the new profile data to the profiles.json file
+        loaded_profiles['profiles'].append({
+            'name': list_of_information[0],
+            'features': list(list_of_information[1]),
+            'total_wealth': list_of_information[2],
+            'budget': list_of_information[3]
         # First sort the list of enabled features smallest to largest
         list_of_features = list(list_of_information[1])
         print("list of features is:", list_of_features)
@@ -242,7 +250,6 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         for i in range(0, len(list_of_features)):
             list_of_features[i] = str(list_of_features[i])
         list_of_information[1] = list_of_features
-
 
         # Simply append the new profile data to the profiles.json file
         loaded_profiles['profiles'].append({
@@ -254,4 +261,3 @@ def write_new_profile_data_to_file(there_are_existing_profiles, loaded_profiles,
         })
         with open('profiles.json', 'w') as outfile:
             json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
-

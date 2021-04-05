@@ -23,6 +23,7 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
                 else:
                     profile[3] = user_input
                     break
+
             # Now update profiles.json with new balance
             with open('profiles.json', "r+") as file:
                 loaded_profiles = json.load(file)
@@ -81,7 +82,6 @@ def run_budget_manager(profile): # profile = [profile index, profile name, profi
             os.remove("profiles.json")
             with open("profiles.json", "w") as file:
                 json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
 
             print("Successfully added expense. \n")
 
