@@ -55,7 +55,7 @@ class SampleApp(tk.Tk):
 
     def __init__(self, *args, **kwargs):
 
-
+ 
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
@@ -268,6 +268,9 @@ class PageFour(tk.Frame): #Login to Existing Profile
         self.controller = controller
         label = tk.Label(self, text="Please select your profile", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+        global there_are_existing_profiles
+        global loaded_profiles
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
         for i in range(len(loaded_profiles["profiles"])):
             # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
             button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],

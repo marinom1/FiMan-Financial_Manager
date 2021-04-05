@@ -5,16 +5,7 @@ symbolsRequest = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&currency=&
 symbolsResponse = requests.get(symbolsRequest)
 symbolsJSON = symbolsResponse.json()
 
-for i in range(len(symbolsJSON)):
-    symbolsJSON = str(symbolsJSON[i])
-    symbolsJSONFormatted = symbolsJSON.replace("'", '"')
-    print(symbolsJSONFormatted)
-
-"""
-for j in range(len(symbolsJSON)):
-    description = symbolsJSON[j]['description']
-    print(description)
-"""
+print(symbolsJSON)
 
 """
 Debugging
