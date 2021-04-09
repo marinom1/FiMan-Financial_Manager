@@ -396,7 +396,7 @@ class PageNine(tk.Frame): # Settings - Michael
         button2 = tk.Button(self, text="Change enabled features",
                             command=lambda: controller.show_frame("PageTwelve"))
         button3 = tk.Button(self, text="Exit Settings",
-                            command=lambda: controller.show_frame("PageFourteen"))
+                            command=lambda: controller.show_frame("PageEight"))
 
         button1.pack()
         button2.pack()
@@ -422,7 +422,7 @@ class PageTen(tk.Frame): # Settings - Change Name
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label1 = tk.Label(self, text="Please enter your name")
+        label1 = tk.Label(self, text="Please enter your new name")
         label1.pack()
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
