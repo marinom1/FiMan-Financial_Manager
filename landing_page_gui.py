@@ -290,13 +290,10 @@ class PageSix(tk.Frame): #Login to Existing Profile
 
         def refresh_profiles():
             print("Does this print 1")
-
             there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-
             #Destroy the existing stuff
             for widget in PageFour.winfo_children(self):
                 widget.destroy()
-
 
             label = tk.Label(self, text="Please select your profile", font=controller.title_font)
             label.pack(side="top", fill="x", pady=10)
@@ -356,13 +353,17 @@ class PageSeven(tk.Frame): #Login Successful
 class PageEight(tk.Frame): # Home Page
 
     def __init__(self, parent, controller):
+        var = tk.StringVar()
+        var.set("")
+        def show_profile_details():
+            var.set(loaded_profiles["profiles"][current_profile_ID])
 
-        def exit_program():
-            exit(0)
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Home Page")
         label.pack(side="top", fill="x", pady=10)
+        label1 = tk.Label(self, textvariable=var)
+        label1.pack()
 
         button1 = tk.Button(self, text="Settings",
                             command=lambda: controller.show_frame("PageOne"))
@@ -371,22 +372,15 @@ class PageEight(tk.Frame): # Home Page
         button3 = tk.Button(self, text="Stock Market",
                             command=lambda: controller.show_frame("PageFour"))
         button4 = tk.Button(self, text="Logout", command=lambda: controller.show_frame("StartPage"))
+        button5 = tk.Button(self, text="Click to see your profile details", command=lambda: show_profile_details())
         button1.pack()
         button2.pack()
         button3.pack()
         button4.pack()
+        button5.pack()
 
 
 if __name__ == "__main__":
-    def task():
-        app.update()
-        print("updated")
-        app.after(2000, task)  # reschedule event in 2 seconds
-
-
-
-
     app = SampleApp()
     app.geometry("700x500")
-    app.after(2000, task)
     app.mainloop()
