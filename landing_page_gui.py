@@ -123,8 +123,7 @@ class PageOne(tk.Frame): # Register a new profile (Enter name)
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next",
-                           command=lambda: [self.store_name(new_name_var), controller.show_frame("PageTwo")])
+        button = tk.Button(self, text="Next", command=lambda: [self.store_name(new_name_var), controller.show_frame("PageTwo")])
         button.pack()
 
 class PageTwo(tk.Frame): # Register a new profile (Choose Features)
@@ -180,7 +179,7 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         label10 = tk.Label(self, text="Please check off the features you would like to enable (Can change later)")
         label10.pack()
 
-        #Checkboxes
+        # Checkboxes
         feature1_var = tk.IntVar()
         feature2_var = tk.IntVar()
         checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
@@ -188,8 +187,7 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
-        button = tk.Button(self, text="Next",
-                           command=lambda: [ self.store_details(feature1_var,feature2_var), controller.show_frame("PageThree")])
+        button = tk.Button(self, text="Next", command=lambda: [ self.store_details(feature1_var,feature2_var), controller.show_frame("PageThree")])
         button.pack()
 
 class PageThree(tk.Frame): # Register a new profile (Enter balance)
@@ -272,8 +270,11 @@ class PageFive(tk.Frame): # Registration Successful
         self.controller = controller
         label = tk.Label(self, text="Registration Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go back to the start page", command=lambda: controller.show_frame("StartPage"))
-        button.pack()
+
+        buttonHome = tk.Button(self, text="Home", command=lambda: controller.show_frame("PageEight"))
+        buttonHome.pack()
+        buttonRegistration = tk.Button(self, text="Landing", command=lambda: controller.show_frame("StartPage"))
+        buttonRegistration.pack()
 
 class PageSix(tk.Frame): #Login to Existing Profile
     def __init__(self, parent, controller):
@@ -336,9 +337,9 @@ class PageSeven(tk.Frame): # Login Successful
         print("current_profile_ID in Login Successful page is:", current_profile_ID)
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
-        button = tk.Button(self, text="Go to your Home Page", command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
+        button = tk.Button(self, text="Home Page", command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
         button.pack()
-        button1 = tk.Button(self, text="Click to see your profile details to make sure you logged into the right profile", command=lambda: show_profile_details())
+        button1 = tk.Button(self, text="Profile Details", command=lambda: show_profile_details())
         button1.pack()
 
 class PageEight(tk.Frame): # Home Page
@@ -360,7 +361,7 @@ class PageEight(tk.Frame): # Home Page
         button2 = tk.Button(self, text="Budget Manager", command=lambda: controller.show_frame("PageFour"))
         button3 = tk.Button(self, text="Stock Market", command=lambda: controller.show_frame("PageFour"))
         button4 = tk.Button(self, text="Logout", command=lambda: controller.show_frame("StartPage"))
-        button5 = tk.Button(self, text="Click to refresh/see your profile details", command=lambda: show_profile_details())
+        button5 = tk.Button(self, text="View Profile Details", command=lambda: show_profile_details())
         button1.pack()
         button2.pack()
         button3.pack()
