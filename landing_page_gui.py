@@ -69,7 +69,29 @@ class SampleApp(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (StartPage, PageOne, PageTwo, PageThree, PageFour, PageFive, PageSix, PageSeven, PageEight, PageNine, PageTen, PageEleven, PageTwelve, PageThirteen): #If making new page, be sure to add it in here
+
+        for F in (
+            StartPage, 
+            PageOne, 
+            PageTwo, 
+            PageThree, 
+            PageFour, 
+            PageFive, 
+            PageSix, 
+            PageSeven, 
+            PageEight, 
+            PageNine, 
+            PageTen, 
+            PageEleven, 
+            PageTwelve, 
+            PageThirteen, 
+            StockMarketHomePage, 
+            SMSectorsPage, 
+            SMCompaniesAndTickersPage, 
+            SMNewsAndArticlesPage, 
+            SMSavedCompaniesAndTickersPage
+        ): # If making new page, be sure to add it in here
+
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -99,11 +121,11 @@ class StartPage(tk.Frame): # Welcome to FiMan
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
         label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Register", command=lambda: controller.show_frame("PageOne"))
-        button2 = tk.Button(self, text="Login", command=lambda: controller.show_frame("PageSix"))
-        button3 = tk.Button(self, text="Exit", command=lambda: exit_program())
+        button1 = tk.Button(self, text="Register", width=8, command=lambda: controller.show_frame("PageOne"))
         button1.pack()
+        button2 = tk.Button(self, text="Login", width=8, command=lambda: controller.show_frame("PageSix"))
         button2.pack()
+        button3 = tk.Button(self, text="Exit", width=8, command=lambda: exit_program())
         button3.pack()
 
 class PageOne(tk.Frame): # Register a new profile (Enter name)
@@ -118,7 +140,7 @@ class PageOne(tk.Frame): # Register a new profile (Enter name)
         self.controller = controller
         label = tk.Label(self, text="Step 1 of 4", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        label1 = tk.Label(self, text="Please enter your name")
+        label1 = tk.Label(self, text="Enter Full Name")
         label1.pack()
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
@@ -271,12 +293,12 @@ class PageFive(tk.Frame): # Registration Successful
         label = tk.Label(self, text="Registration Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        buttonHome = tk.Button(self, text="Home", command=lambda: controller.show_frame("PageEight"))
+        buttonHome = tk.Button(self, text="Home", width=8, command=lambda: controller.show_frame("PageEight"))
         buttonHome.pack()
-        buttonRegistration = tk.Button(self, text="Landing", command=lambda: controller.show_frame("StartPage"))
+        buttonRegistration = tk.Button(self, text="Landing", width=8, command=lambda: controller.show_frame("StartPage"))
         buttonRegistration.pack()
 
-class PageSix(tk.Frame): #Login to Existing Profile
+class PageSix(tk.Frame): # Login to Existing Profile
     def __init__(self, parent, controller):
         def get_profile_ID(i):
             print("Profile ID in Login to Existing Profile is:",i)
@@ -337,9 +359,9 @@ class PageSeven(tk.Frame): # Login Successful
         print("current_profile_ID in Login Successful page is:", current_profile_ID)
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
-        button = tk.Button(self, text="Home Page", command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
+        button = tk.Button(self, text="Home Page", width=12, command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
         button.pack()
-        button1 = tk.Button(self, text="Profile Details", command=lambda: show_profile_details())
+        button1 = tk.Button(self, text="Profile Details", width=12, command=lambda: show_profile_details())
         button1.pack()
 
 class PageEight(tk.Frame): # Home Page
@@ -357,15 +379,15 @@ class PageEight(tk.Frame): # Home Page
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
 
-        button1 = tk.Button(self, text="Settings", command=lambda: controller.show_frame("PageNine"))
-        button2 = tk.Button(self, text="Budget Manager", command=lambda: controller.show_frame("PageFour"))
-        button3 = tk.Button(self, text="Stock Market", command=lambda: controller.show_frame("PageFour"))
-        button4 = tk.Button(self, text="Logout", command=lambda: controller.show_frame("StartPage"))
-        button5 = tk.Button(self, text="View Profile Details", command=lambda: show_profile_details())
+        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: controller.show_frame("PageFour"))
         button1.pack()
+        button2 = tk.Button(self, text="Stock Market", width=17, command=lambda: controller.show_frame("StockMarketHomePage"))
         button2.pack()
+        button3 = tk.Button(self, text="Settings", width=17, command=lambda: controller.show_frame("PageNine"))
         button3.pack()
+        button4 = tk.Button(self, text="Logout", width=17, command=lambda: controller.show_frame("StartPage"))
         button4.pack()
+        button5 = tk.Button(self, text="View Profile Details", width=17, command=lambda: show_profile_details())
         button5.pack()
 
 class PageNine(tk.Frame): # Settings - Michael
@@ -380,12 +402,11 @@ class PageNine(tk.Frame): # Settings - Michael
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
 
-        button1 = tk.Button(self, text="Change Profile Name", command=lambda: controller.show_frame("PageTen"))
-        button2 = tk.Button(self, text="Change enabled features", command=lambda: controller.show_frame("PageTwelve"))
-        button3 = tk.Button(self, text="Exit Settings", command=lambda: controller.show_frame("PageEight"))
-
+        button1 = tk.Button(self, text="Change Profile Name", width=21, command=lambda: controller.show_frame("PageTen"))
         button1.pack()
+        button2 = tk.Button(self, text="Change enabled features", width=21, command=lambda: controller.show_frame("PageTwelve"))
         button2.pack()
+        button3 = tk.Button(self, text="Exit Settings", width=21, command=lambda: controller.show_frame("PageEight"))
         button3.pack()
 
 class PageTen(tk.Frame): # Settings - Change Name
@@ -420,7 +441,7 @@ class PageEleven(tk.Frame): # Name change Successful
         self.controller = controller
         label = tk.Label(self, text="Name Change Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go back to the home page", command=lambda: controller.show_frame("PageEight"))
+        button = tk.Button(self, text="Home", command=lambda: controller.show_frame("PageEight"))
         button.pack()
 
 class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
@@ -482,9 +503,7 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
             checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
             checkbutton2.pack()
 
-            button = tk.Button(self, text="Next",
-                               command=lambda: [self.store_details(feature1_var, feature2_var),
-                                                controller.show_frame("PageThirteen")])
+            button = tk.Button(self, text="Next", command=lambda: [self.store_details(feature1_var, feature2_var), controller.show_frame("PageThirteen")])
             button.pack()
 
 class PageThirteen(tk.Frame): # Enabled Features Change Successful
@@ -493,8 +512,56 @@ class PageThirteen(tk.Frame): # Enabled Features Change Successful
         self.controller = controller
         label = tk.Label(self, text="Enabled Features Change Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Go back to the home page", command=lambda: controller.show_frame("PageEight"))
+        button = tk.Button(self, text="Home", command=lambda: controller.show_frame("PageEight"))
         button.pack()
+
+"""STOCK MARKET SECTION"""
+
+class StockMarketHomePage(tk.Frame): # Stock Market Home Page
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Stock Market", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+        button1 = tk.Button(self, text="Companies and Tickers", width=25, command=lambda: controller.show_frame("SMSectorsPage"))
+        button1.pack()
+        button2 = tk.Button(self, text="Sectors", width=25, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
+        button2.pack()
+        button3 = tk.Button(self, text="News and Articles", width=25, command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
+        button3.pack()
+        button4 = tk.Button(self, text="Saved Companies and Tickers", width=25, command=lambda: controller.show_frame("SMSavedCompaniesAndTickersPage"))
+        button4.pack()
+        button5 = tk.Button(self, text="Home", width=25, command=lambda: controller.show_frame("PageEight"))
+        button5.pack()
+
+class SMSectorsPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Sectors", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+class SMCompaniesAndTickersPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Companies and Tickers", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+class SMNewsAndArticlesPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="News and Articles", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
+
+class SMSavedCompaniesAndTickersPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
+        label.pack(side="top", fill="x", pady=10)
 
 if __name__ == "__main__":
     app = SampleApp()
