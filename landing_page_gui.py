@@ -1,12 +1,14 @@
 import tkinter as tk
+import json, os, webbrowser
+from datetime import datetime as dt
 from tkinter import font as tkfont
-import json
-import os
+from tkinter import *
 from landing_page import load_existing_profiles
 from home_page import *
+from stock_market import *
 
-#from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
-#helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
+# from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
+# helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
 
 def load_existing_profiles():
     """First, this function will ensure that the file profiles.json exists. If it doesn't, then we create it.
@@ -524,9 +526,9 @@ class StockMarketHomePage(tk.Frame): # Stock Market Home Page
         label = tk.Label(self, text="Stock Market", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Companies and Tickers", width=25, command=lambda: controller.show_frame("SMSectorsPage"))
+        button1 = tk.Button(self, text="Sectors", width=25, command=lambda: controller.show_frame("SMSectorsPage"))
         button1.pack()
-        button2 = tk.Button(self, text="Sectors", width=25, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
+        button2 = tk.Button(self, text="Companies and Tickers", width=25, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
         button2.pack()
         button3 = tk.Button(self, text="News and Articles", width=25, command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
         button3.pack()
@@ -542,6 +544,45 @@ class SMSectorsPage(tk.Frame):
         label = tk.Label(self, text="Sectors", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
+        feature1_var = tk.IntVar()
+        feature2_var = tk.IntVar()
+        feature3_var = tk.IntVar()
+        feature4_var = tk.IntVar()
+        feature5_var = tk.IntVar()
+        feature6_var = tk.IntVar()
+        feature7_var = tk.IntVar()
+        feature8_var = tk.IntVar()
+        feature9_var = tk.IntVar()
+        feature10_var = tk.IntVar()
+        feature11_var = tk.IntVar()
+
+        checkButton1 = tk.Checkbutton(self, text="Energy", variable=feature1_var)
+        checkButton1.pack()
+        checkButton2 = tk.Checkbutton(self, text="Materials", variable=feature2_var)
+        checkButton2.pack()
+        checkButton3 = tk.Checkbutton(self, text="Industrials", variable=feature3_var)
+        checkButton3.pack()
+        checkButton4 = tk.Checkbutton(self, text="Utilities", variable=feature4_var)
+        checkButton4.pack()
+        checkButton5 = tk.Checkbutton(self, text="Healthcare", variable=feature5_var)
+        checkButton5.pack()
+        checkButton6 = tk.Checkbutton(self, text="Financials", variable=feature6_var)
+        checkButton6.pack()
+        checkButton7 = tk.Checkbutton(self, text="Consumer Discretionary", variable=feature7_var)
+        checkButton7.pack()
+        checkButton8 = tk.Checkbutton(self, text="Consumer Staples", variable=feature8_var)
+        checkButton8.pack()
+        checkButton9 = tk.Checkbutton(self, text="Information Technology", variable=feature9_var)
+        checkButton9.pack()
+        checkButton10 = tk.Checkbutton(self, text="Communication Services", variable=feature10_var)
+        checkButton10.pack()
+        checkButton11 = tk.Checkbutton(self, text="Real Estate", variable=feature11_var)
+        checkButton11.pack()
+
+        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
+        confirmButton.pack()
+
+# Stock Market Companies and Tickers
 class SMCompaniesAndTickersPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -549,6 +590,16 @@ class SMCompaniesAndTickersPage(tk.Frame):
         label = tk.Label(self, text="Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
+        showTickersButton = tk.Button(self, text="Show Tickers", command=lambda: getSymbols())
+        showTickersButton.pack()
+
+        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
+        confirmButton.pack()
+
+
+
+
+# Stock Market News and Articles
 class SMNewsAndArticlesPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -556,12 +607,56 @@ class SMNewsAndArticlesPage(tk.Frame):
         label = tk.Label(self, text="News and Articles", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
+        def openLink(url):
+            webbrowser.open_new(url)
+
+        """
+        showNewsArticlesButton = tk.Button(self, text="Generate Articles")
+        showNewsArticlesButton.pack()
+        """
+
+        generatedArticles = getMarketNews()
+
+        for article in range(0, 10):
+            imageLink = generatedArticles[article]['image']
+            headline = generatedArticles[article]['headline']
+            datetimeTimeStamp = generatedArticles[article]['datetime']
+            summary = generatedArticles[article]['summary']
+            url = generatedArticles[article]['url']
+
+            datetime = dt.fromtimestamp(datetimeTimeStamp)
+
+            articleHeadline = tk.Label(self, text=f'{headline}', anchor="e", justify=LEFT)
+            articleHeadline.pack()
+            articleDate = tk.Label(self, text=f'{datetime}')
+            articleDate.pack()
+            articleSummary = tk.Label(self, text=f'{summary}')
+            articleSummary.pack()
+            articleURL = tk.Label(self, text=f'{url}', fg="blue", cursor="hand2")
+            articleURL.pack()
+            articleURL.bind("<Button-1>", lambda e: openLink(f'{url}'))
+            articleSpace = tk.Label(self, text='')
+            articleSpace.pack()
+
+        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
+        confirmButton.pack()
+
+# Stock Market Saved Companies and Tickers
 class SMSavedCompaniesAndTickersPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+
+
+
+        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
+        confirmButton.pack()
+
+
+
+"""END OF STOCK MARKET SECTION"""
 
 if __name__ == "__main__":
     app = SampleApp()
