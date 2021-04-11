@@ -1,4 +1,4 @@
-import requests, json
+import requests
 from config import FinnhubIOKey
 
 marketNewsRequest = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'

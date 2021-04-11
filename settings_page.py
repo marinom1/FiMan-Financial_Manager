@@ -1,5 +1,6 @@
 import json
 import os
+
 def run_settings_page(profile): # profile = [index of current profile in json, user_name, user_features, user_balance, user_budget]
     while (True):
         print("Type 1 to change your profile name")
