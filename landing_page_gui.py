@@ -524,9 +524,9 @@ class StockMarketHomePage(tk.Frame): # Stock Market Home Page
         label = tk.Label(self, text="Stock Market", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Companies and Tickers", width=25, command=lambda: controller.show_frame("SMSectorsPage"))
+        button1 = tk.Button(self, text="Companies and Tickers", width=25, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
         button1.pack()
-        button2 = tk.Button(self, text="Sectors", width=25, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
+        button2 = tk.Button(self, text="Sectors", width=25, command=lambda: controller.show_frame("SMSectorsPage"))
         button2.pack()
         button3 = tk.Button(self, text="News and Articles", width=25, command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
         button3.pack()
