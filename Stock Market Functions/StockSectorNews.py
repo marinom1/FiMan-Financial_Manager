@@ -9,4 +9,4 @@ sectorNewsRequest = f'https://newsapi.org/v2/everything?q={sector}&sortBy=popula
 sectorNewsResponse  = requests.get(sectorNewsRequest)
 sectorNewsJSON = sectorNewsResponse.json()
 
-print(sectorNewsJSON)
+print(sectorNewsJSON) 
