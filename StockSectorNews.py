@@ -3,7 +3,7 @@ from config import NewsAPIKey
 
 # Test cases
 
-sector = 'Healthcare-Sector'
+sector = 'Financial-Technology-Sector'
 
 sectorNewsRequest = f'https://newsapi.org/v2/everything?q={sector}&sortBy=popularity&apiKey={NewsAPIKey}'
 sectorNewsResponse  = requests.get(sectorNewsRequest)

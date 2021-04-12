@@ -1,11 +1,20 @@
 import requests, json
-from config import PolygonIOKey, FinnhubIOKey
+from config import PolygonIOKey, FinnhubIOKey, NewsAPIKey
 
-# Ticker Details
+# Stock Symbols
+def getSymbols():
+    symbolsRequest = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&currency=&token={FinnhubIOKey}'
+    symbolsResponse = requests.get(symbolsRequest)
+    symbolsJSON = symbolsResponse.json()
+
+    # print(symbolsJSON)
+    return symbolsJSON
+
+#Stock Symbols Details
 def getTicker(tickerList):
     for ticker in tickerList:
         print('Ticker:', ticker)
-        # details = f'https://api.polygon.io/v1/meta/symbols/{ticker}/company?&apiKey={PolygonIOKey}'
+        # detailsRequest = f'https://api.polygon.io/v1/meta/symbols/{ticker}/company?&apiKey={PolygonIOKey}'
         detailsRequest = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
         detailsResponse = requests.get(detailsRequest)
         detailsJSON = detailsResponse.json()
@@ -56,16 +65,26 @@ def getTicker(tickerList):
             print('URL:', url)
             print('Tags:', tags)
             print('')
-
-        displayDetails()
         """
 
-def main():
-    enterTickers = input('Enter your preferred stock tickers (FB AMZN AAPL NFLX GOOGL etc.): ')
-    enterTickers = enterTickers.upper()
-    tickerList = enterTickers.split()
-    # print(tickerList)
-    print('Generating details for selected tickers...')
-    getTicker(tickerList)
+        # displayDetails()
 
-main()
+# Stock Market News
+def getMarketNews():
+    marketNewsRequest = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'
+    marketNewsResponse = requests.get(marketNewsRequest)
+    marketNewsJSON = marketNewsResponse.json()
+
+    for i in range(len(marketNewsJSON)):
+        print('Next Article:', marketNewsJSON[i])
+        print('')
+
+    return marketNewsJSON
+
+# Stock Symbols News
+
+
+
+# Stock Sector News
+
+
