@@ -15,7 +15,7 @@ def getTicker(tickerList):
         detailsJSON = json.dumps(detailsJSON, indent = 4, sort_keys = True)
 
         print('Ticker Details:\n', detailsJSON)
-
+        
         # FinnhubIO
         """
         def displayDetails():
