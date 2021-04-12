@@ -91,14 +91,14 @@ class SampleApp(tk.Tk):
             SMSectorsPage, 
             SMCompaniesAndTickersPage, 
             SMNewsAndArticlesPage, 
-            SMSavedCompaniesAndTickersPage,
+            # SMSavedCompaniesAndTickersPage,
             BudgetManagerHomePage,
             BMAdjustBalance,
             BMAdjustBudget,
             BMEnterDeposit,
             BMEnterExpense,
             BMBudgetHistory
-            SMSymbolLookupPage 
+            # SMSymbolLookupPage
             # SMSavedCompaniesAndTickersPage
         ): # If making new page, be sure to add it in here
 
@@ -761,24 +761,60 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 
 class BudgetManagerHomePage(tk.Frame):
 
-    def notification(self):
-        x = random.randint(1, 5)  # generate random int between 1 and 4
-        if (x == 1):
-            if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
-                return "You have more money than the average American has in the bank (> $3,400)"
-            else:
-                return "You have less money than the average American has in the bank (> $3,400)"
-        elif (x == 2):
-            if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
-                return "The average american spends $5,102 in a month. Your budget is currently more than that"
-            else:
-                return "The average american spends $5,102 in a month. Your budget is currently less than that"
-        elif (x == 3):
-            return "Are you taking into consideration your retirement plan?"
-        elif (x == 4):
-            return "Only 30% of American households have a long-term financial plan"
-
+    # def notification(self):
+    #     x = random.randint(1, 5)  # generate random int between 1 and 4
+    #     if (x == 1):
+    #         if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
+    #             return "You have more money than the average American has in the bank (> $3,400)"
+    #         else:
+    #             return "You have less money than the average American has in the bank (> $3,400)"
+    #     elif (x == 2):
+    #         if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
+    #             return "The average american spends $5,102 in a month. Your budget is currently more than that"
+    #         else:
+    #             return "The average american spends $5,102 in a month. Your budget is currently less than that"
+    #     elif (x == 3):
+    #         return "Are you taking into consideration your retirement plan?"
+    #     elif (x == 4):
+    #         return "Only 30% of American households have a long-term financial plan"
     def __init__(self, parent, controller):
+        def refresh():
+            print("Does this print 1")
+            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+            # Destroy the existing stuff
+            for widget in BudgetManagerHomePage.winfo_children(self):
+                widget.destroy()
+            label = tk.Label(self, text="Budget Manager")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text="Your current balance is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text="Your current budget is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
+            label.pack(side="top", fill="x", pady=10)
+
+            button1 = tk.Button(self, text="Adjust total balance",
+                                command=lambda: controller.show_frame("BMAdjustBalance"))
+            button2 = tk.Button(self, text="Adjust budget",
+                                command=lambda: controller.show_frame("BMAdjustBudget"))
+            button3 = tk.Button(self, text="Enter a deposit",
+                                command=lambda: controller.show_frame("BMEnterDeposit"))
+            button4 = tk.Button(self, text="Enter an expense",
+                                command=lambda: controller.show_frame("BMEnterExpense"))
+            button5 = tk.Button(self, text="View full budget history",
+                                command=lambda: controller.show_frame("BMBudgetHistory"))
+            button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
+            button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
+            button1.pack()
+            button2.pack()
+            button3.pack()
+            button4.pack()
+            button5.pack()
+            button7.pack()
+            button8.pack()
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
@@ -803,16 +839,17 @@ class BudgetManagerHomePage(tk.Frame):
         button5 = tk.Button(self, text="View full budget history",
                             command=lambda: controller.show_frame("BMBudgetHistory"))
         button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
+        button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
         button1.pack()
         button2.pack()
         button3.pack()
         button4.pack()
         button5.pack()
         button7.pack()
+        button8.pack()
 
         # label = tk.Label(self, text= "notification")
         # label.pack(side="top", fill="x", pady=10)
-
 
 class BMAdjustBalance(tk.Frame): #Adjust total balance
 
@@ -987,6 +1024,7 @@ class BMBudgetHistory(tk.Frame): #Budget History
     #     self.__init__(self.parent, controller)
 
     def __init__(self, parent, controller):
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
@@ -1020,7 +1058,7 @@ class BMBudgetHistory(tk.Frame): #Budget History
         #         self.e.grid(row=i, column=j)
         #         self.e.insert(END, expense_list[i][j])
 
-        button = tk.Button(self, text="Refresh", command=lambda: self.refresh())
+        button = tk.Button(self, text="Refresh", command=lambda: refresh())
         button.grid()
         button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
         button.grid()
