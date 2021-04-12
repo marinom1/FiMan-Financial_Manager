@@ -263,7 +263,7 @@ class PageFour(tk.Frame): # Register a new profile (Enter budget)
                 'total_balance': new_balance,
                 'budget': new_budget,
                 'deposits': [],
-                'expenses':[]
+                'expenses': []
             })
             with open('profiles.json', 'w') as outfile:
                 json.dump(data, outfile, indent=2, sort_keys=False)
@@ -623,8 +623,8 @@ class BudgetManagerHomePage(tk.Frame):
         button5.pack()
         button7.pack()
 
-        label = tk.Label(self, text= "notification")
-        label.pack(side="top", fill="x", pady=10)
+        # label = tk.Label(self, text= "notification")
+        # label.pack(side="top", fill="x", pady=10)
 
 
 class BMAdjustBalance(tk.Frame): #Adjust total balance
@@ -681,7 +681,7 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
         entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
         button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_balance(new_budget_var),
+                           command=lambda: [self.store_budget(new_budget_var),
                                             controller.show_frame("BudgetManagerHomePage")])
         button.pack()
 
@@ -795,19 +795,34 @@ class BMEnterExpense(tk.Frame): #Enter an expense
 
 class BMBudgetHistory(tk.Frame): #Budget History
 
+    # def refresh(self):
+    #     self.destroy()
+    #     self.__init__(self.parent, controller)
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
+        l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+        if len(l2) == 0:
+            rows = len(l1)
+            columns = len(l1[0])
 
-        budget_list = loaded_profiles["profiles"][current_profile_ID]["deposits"] + (loaded_profiles["profiles"][current_profile_ID]["expenses"])
-        rows1 = len(budget_list)
-        columns1 = len(budget_list[0])
+            for i in range(rows):
+                for j in range(columns):
+                    self.e = Entry(self)
+                    self.e.grid(row=i, column=j)
+                    self.e.insert(END, l1[i][j])
+        else:
+            l3 = l1 + l2
+            rows = len(l3)
+            columns = len(l3[0])
 
-        for i in range(rows1):
-            for j in range(columns1):
-                self.e = Entry(self)
-                self.e.grid(row=i, column=j)
-                self.e.insert(END, budget_list[i][j])
+            for i in range(rows):
+                for j in range(columns):
+                    self.e = Entry(self)
+                    self.e.grid(row=i, column=j)
+                    self.e.insert(END, l3[i][j])
 
         # expense_list = loaded_profiles["profiles"][current_profile_ID]["expenses"]
         # rows2 = len(expense_list)
@@ -818,6 +833,8 @@ class BMBudgetHistory(tk.Frame): #Budget History
         #         self.e.grid(row=i, column=j)
         #         self.e.insert(END, expense_list[i][j])
 
+        button = tk.Button(self, text="Refresh", command=lambda: self.refresh())
+        button.grid()
         button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
         button.grid()
 
