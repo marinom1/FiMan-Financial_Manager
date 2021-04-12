@@ -989,6 +989,7 @@ class BMEnterExpense(tk.Frame): #Enter an expense
             loaded_profiles = json.load(file)
             loaded_profiles["profiles"][current_profile_ID]["expenses"].append(new_expense_info)
             loaded_profiles["profiles"][current_profile_ID]["total_balance"] -= new_expensevalue
+            loaded_profiles["profiles"][current_profile_ID]["budget"] -= new_expensevalue
 
         os.remove("profiles.json")
         with open("profiles.json", "w") as file:
