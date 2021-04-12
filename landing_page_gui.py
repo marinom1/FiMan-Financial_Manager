@@ -1,8 +1,11 @@
 import tkinter as tk
-import json, os, webbrowser
+import json, os, webbrowser, requests
+from config import FinnhubIOKey
 from datetime import datetime as dt
+from functools import partial
 from tkinter import font as tkfont
 from tkinter import *
+from tkinter import messagebox
 from landing_page import load_existing_profiles
 from home_page import *
 from stock_market import *
@@ -91,7 +94,7 @@ class SampleApp(tk.Tk):
             SMSectorsPage, 
             SMCompaniesAndTickersPage, 
             SMNewsAndArticlesPage,
-            SMSymbolLookupPage 
+            SMCompanySearchPage
             # SMSavedCompaniesAndTickersPage
         ): # If making new page, be sure to add it in here
 
@@ -321,13 +324,13 @@ class PageSix(tk.Frame): # Login to Existing Profile
             print("len of loaded profiles here is:", len(loaded_profiles["profiles"]))
             for i in range(len(loaded_profiles["profiles"])):
                 # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
-                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
-                                   command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
+                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"], command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
 
                 button.pack()
-            button1 = tk.Button(self, text="Click here to refresh profiles",
-                                command=lambda: [refresh_profiles()])
+            button1 = tk.Button(self, text="Refresh", width=10, command=lambda: [refresh_profiles()])
             button1.pack()
+            backButton = tk.Button(self, text="Back", width=10, command=lambda: controller.show_frame("StartPage"))
+            backButton.pack()
             print("Does this print 2")
 
         tk.Frame.__init__(self, parent)
@@ -340,10 +343,11 @@ class PageSix(tk.Frame): # Login to Existing Profile
         for i in range(len(loaded_profiles["profiles"])):
             # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
             button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"], command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
-
             button.pack()
-        button1 = tk.Button(self, text="Click here to refresh profiles", command=lambda: [refresh_profiles()])
+        button1 = tk.Button(self, text="Refresh", width=10, command=lambda: [refresh_profiles()])
         button1.pack()
+        backButton = tk.Button(self, text="Back", width=10, command=lambda: controller.show_frame("StartPage"))
+        backButton.pack()
 
 class PageSeven(tk.Frame): # Login Successful
     def __init__(self, parent, controller):
@@ -362,7 +366,7 @@ class PageSeven(tk.Frame): # Login Successful
         print("current_profile_ID in Login Successful page is:", current_profile_ID)
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
-        button = tk.Button(self, text="Home Page", width=12, command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
+        button = tk.Button(self, text="Home", width=12, command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
         button.pack()
         button1 = tk.Button(self, text="Profile Details", width=12, command=lambda: show_profile_details())
         button1.pack()
@@ -531,7 +535,7 @@ class StockMarketHomePage(tk.Frame): # Stock Market Home Page
         button1.pack()
         button2 = tk.Button(self, text="Companies and Tickers", width=20, command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
         button2.pack()
-        button3 = tk.Button(self, text="Search Company", width=20, command=lambda: controller.show_frame("SMSymbolLookupPage"))
+        button3 = tk.Button(self, text="Search Company", width=20, command=lambda: controller.show_frame("SMCompanySearchPage"))
         button3.pack()
         button4 = tk.Button(self, text="News and Articles", width=20, command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
         button4.pack()
@@ -662,21 +666,27 @@ class SMCompaniesAndTickersPage(tk.Frame):
         listBox.pack(side=TOP, fill=BOTH)
         scroll_bar.config(command=listBox.yview)
 
-class SMSymbolLookupPage(tk.Frame):
+class SMCompanySearchPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        searchBoxInstructions = tk.Label(self, text="Search for your desired Companies and Tickers, separated with a comma")
+        def getTicker(ticker):
+            detailsRequest = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
+            detailsResponse = requests.get(detailsRequest)
+            detailsJSON = detailsResponse.json()
+
+            nameLabel = tk.Label(self, text=f'{ticker}')
+            nameLabel.pack()
+
+        searchBoxInstructions = tk.Label(self, text="Search for Companies and Tickers by Ticker")
         searchBoxInstructions.pack()
-
-        searchBox = tk.Entry(self)
+        ticker = tk.StringVar()
+        searchBox = tk.Entry(self, textvariable=ticker)
         searchBox.pack()
-
-        
-        searchLabel = tk.Button(self, text="Search", width=7)
+        searchLabel = tk.Button(self, text="Search", width=7, command=partial(getTicker, ticker))
         searchLabel.pack()
 
         confirmButton = tk.Button(self, text="Done", width=7, command=lambda: controller.show_frame("StockMarketHomePage"))
