@@ -1019,11 +1019,48 @@ class BMEnterExpense(tk.Frame): #Enter an expense
 
 class BMBudgetHistory(tk.Frame): #Budget History
 
-    # def refresh(self):
-    #     self.destroy()
-    #     self.__init__(self.parent, controller)
-
     def __init__(self, parent, controller):
+
+        def refresh():
+            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+            for widget in BMBudgetHistory.winfo_children(self):
+                widget.destroy()
+
+            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
+            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+            if len(l2) == 0:
+                rows = len(l1)
+                columns = len(l1[0])
+
+                for i in range(rows):
+                    for j in range(columns):
+                        self.e = Entry(self)
+                        self.e.grid(row=i, column=j)
+                        self.e.insert(END, l1[i][j])
+            else:
+                l3 = l1 + l2
+                rows = len(l3)
+                columns = len(l3[0])
+
+                for i in range(rows):
+                    for j in range(columns):
+                        self.e = Entry(self)
+                        self.e.grid(row=i, column=j)
+                        self.e.insert(END, l3[i][j])
+
+            # expense_list = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+            # rows2 = len(expense_list)
+            # columns2 = len(expense_list[0])
+            # for i in range(rows2):
+            #     for j in range(columns2):
+            #         self.e = Entry(self)
+            #         self.e.grid(row=i, column=j)
+            #         self.e.insert(END, expense_list[i][j])
+
+            button = tk.Button(self, text="Refresh", command=lambda: refresh())
+            button.grid()
+            button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
+            button.grid()
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
