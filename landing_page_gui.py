@@ -7,42 +7,7 @@ from landing_page import load_existing_profiles
 from home_page import *
 from stock_market import *
 
-# from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
-# helpful with connecting textbox to button https://codeloop.org/how-to-create-textbox-in-python-tkinter/
-
-def load_existing_profiles():
-    """First, this function will ensure that the file profiles.json exists. If it doesn't, then we create it.
-    Then, this function checks if there are already existing profiles. If there are, we load them into program.
-    If there are no existing profiles, then make the boolean existing_profiles False
-    Returns
-    -------
-    there_are_existing_profiles : bool
-        boolean that tells us if there are existing profiles already in profiles.json
-    loaded_profiles : json
-        existing data from profiles.json if there are existing profiles, empty dict if there are none
-    """
-
-    # Check if profiles.json exists first
-    if os.path.isfile("profiles.json"):
-        print("Found profiles.json - Loading Profiles Now")
-    else:
-        print("profiles.json doesn't exist - Creating profiles.json")
-        f = open("profiles.json", "w")
-        f.write('{\n\t"profiles": []\n}')
-
-    if os.stat("profiles.json").st_size == 0:  # if profiles.json is empty (A.K.A no existing profiles)
-        there_are_existing_profiles = False
-    else:
-        there_are_existing_profiles = True
-
-    if (there_are_existing_profiles):
-        with open('profiles.json') as json_file:
-            loaded_profiles = json.load(json_file)
-
-    else:  # No profiles made previously
-        loaded_profiles = {}
-
-    return there_are_existing_profiles, loaded_profiles
+# "template" from https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
 
 there_are_existing_profiles, loaded_profiles = load_existing_profiles()
 
@@ -56,8 +21,7 @@ enabled_feature2 = 0 #0 is false, 1 is true
 new_balance = 0.01
 new_budget = 0.01
 
-class SampleApp(tk.Tk):
-
+class FiMan(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
@@ -139,13 +103,28 @@ class StartPage(tk.Frame): # Welcome to FiMan
         button3.pack()
 
 class PageOne(tk.Frame): # Register a new profile (Enter name)
-    def store_name(self, new_name_var):
-        name = new_name_var.get()
-        print("new_name_var is:", name)
-        global new_name
-        new_name = name
-
     def __init__(self, parent, controller):
+        def check_name(new_name_var):
+            name = new_name_var.get()
+            if (name.isspace()) or (name == ""): # invalid name
+                # Destroy the existing stuff
+                for widget in PageFour.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 1 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+                label1 = tk.Label(self, text="Please enter a VALID name")
+                label1.pack()
+                new_name_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_name_var)
+                entry.pack()
+                button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
+                button.pack()
+            else: #valid input, store their name and move to next registration step
+                print("new_name_var is:", name)
+                global new_name
+                new_name = name
+                controller.show_frame("PageTwo")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Step 1 of 4", font=controller.title_font)
@@ -155,7 +134,7 @@ class PageOne(tk.Frame): # Register a new profile (Enter name)
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.store_name(new_name_var), controller.show_frame("PageTwo")])
+        button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
         button.pack()
 
 class PageTwo(tk.Frame): # Register a new profile (Choose Features)
@@ -319,7 +298,6 @@ class PageSix(tk.Frame): # Login to Existing Profile
             print("The current_profile_ID is:", current_profile_ID)
 
         def refresh_profiles():
-            print("Does this print 1")
             there_are_existing_profiles, loaded_profiles = load_existing_profiles()
             # Destroy the existing stuff
             for widget in PageFour.winfo_children(self):
@@ -327,17 +305,22 @@ class PageSix(tk.Frame): # Login to Existing Profile
 
             label = tk.Label(self, text="Please select your profile", font=controller.title_font)
             label.pack(side="top", fill="x", pady=10)
-            print("len of loaded profiles here is:", len(loaded_profiles["profiles"]))
-            for i in range(len(loaded_profiles["profiles"])):
-                # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
-                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
-                                   command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
+            if there_are_existing_profiles:
+                for i in range(len(loaded_profiles["profiles"])):
+                    # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
+                    button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"],
+                                       command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
 
-                button.pack()
+                    button.pack()
+            else:
+                label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first", font=controller.title_font)
+                label2.pack(side="top", fill="x", pady=10)
             button1 = tk.Button(self, text="Click here to refresh profiles",
                                 command=lambda: [refresh_profiles()])
             button1.pack()
-            print("Does this print 2")
+            button2 = tk.Button(self, text="Back", width=8,
+                                command=lambda: controller.show_frame("StartPage"))
+            button2.pack()
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -346,13 +329,21 @@ class PageSix(tk.Frame): # Login to Existing Profile
         global there_are_existing_profiles
         global loaded_profiles
         there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-        for i in range(len(loaded_profiles["profiles"])):
-            # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
-            button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"], command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
+        if (there_are_existing_profiles):
+            for i in range(len(loaded_profiles["profiles"])):
+                # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
+                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"], command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
 
-            button.pack()
+                button.pack()
+        else:
+            label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first",
+                              font=controller.title_font)
+            label2.pack(side="top", fill="x", pady=10)
         button1 = tk.Button(self, text="Click here to refresh profiles", command=lambda: [refresh_profiles()])
         button1.pack()
+        button2 = tk.Button(self, text="Back", width=8,
+                                       command=lambda: controller.show_frame("StartPage"))
+        button2.pack()
 
 class PageSeven(tk.Frame): # Login Successful
     def __init__(self, parent, controller):
@@ -819,14 +810,15 @@ class BudgetManagerHomePage(tk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
         label.pack(side="top", fill="x", pady=10)
-        label = tk.Label(self, text="Your current balance is:")
-        label.pack(side="top", fill="x", pady=10)
-        label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
-        label.pack(side="top", fill="x", pady=10)
-        label = tk.Label(self, text="Your current budget is:")
-        label.pack(side="top", fill="x", pady=10)
-        label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
-        label.pack(side="top", fill="x", pady=10)
+        if (there_are_existing_profiles):
+            label = tk.Label(self, text="Your current balance is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text="Your current budget is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
+            label.pack(side="top", fill="x", pady=10)
 
         button1 = tk.Button(self, text="Adjust total balance",
                             command=lambda: controller.show_frame("BMAdjustBalance"))
@@ -964,9 +956,7 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
         button.pack()
 
 class BMEnterExpense(tk.Frame): #Enter an expense
-
     def store_expense_info(self, new_expensename_var, new_expensevalue_var, new_expensedate_var):
-
         expensename = new_expensename_var.get()
         print("new_expensename_var is:", expensename)
         global new_expensename
@@ -1019,9 +1009,7 @@ class BMEnterExpense(tk.Frame): #Enter an expense
         button.pack()
 
 class BMBudgetHistory(tk.Frame): #Budget History
-
     def __init__(self, parent, controller):
-
         def refresh():
             there_are_existing_profiles, loaded_profiles = load_existing_profiles()
             for widget in BMBudgetHistory.winfo_children(self):
@@ -1029,34 +1017,28 @@ class BMBudgetHistory(tk.Frame): #Budget History
 
             l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
             l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            if len(l2) == 0:
-                rows = len(l1)
-                columns = len(l1[0])
-
-                for i in range(rows):
-                    for j in range(columns):
-                        self.e = Entry(self)
-                        self.e.grid(row=i, column=j)
-                        self.e.insert(END, l1[i][j])
+            if len(l1) == 0 and len(l2) == 0:  # Profile exists, but there are no deposits or expenses yet
+                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
+                label2.grid()
             else:
-                l3 = l1 + l2
-                rows = len(l3)
-                columns = len(l3[0])
+                if len(l2) == 0:
+                    rows = len(l1)
+                    columns = len(l1[0])
+                    for i in range(rows):
+                        for j in range(columns):
+                            self.e = Entry(self)
+                            self.e.grid(row=i, column=j)
+                            self.e.insert(END, l1[i][j])
+                else:
+                    l3 = l1 + l2
+                    rows = len(l3)
+                    columns = len(l3[0])
 
-                for i in range(rows):
-                    for j in range(columns):
-                        self.e = Entry(self)
-                        self.e.grid(row=i, column=j)
-                        self.e.insert(END, l3[i][j])
-
-            # expense_list = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            # rows2 = len(expense_list)
-            # columns2 = len(expense_list[0])
-            # for i in range(rows2):
-            #     for j in range(columns2):
-            #         self.e = Entry(self)
-            #         self.e.grid(row=i, column=j)
-            #         self.e.insert(END, expense_list[i][j])
+                    for i in range(rows):
+                        for j in range(columns):
+                            self.e = Entry(self)
+                            self.e.grid(row=i, column=j)
+                            self.e.insert(END, l3[i][j])
 
             button = tk.Button(self, text="Refresh", command=lambda: refresh())
             button.grid()
@@ -1065,36 +1047,31 @@ class BMBudgetHistory(tk.Frame): #Budget History
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
-        l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-        if len(l2) == 0:
-            rows = len(l1)
-            columns = len(l1[0])
+        if (there_are_existing_profiles):
+            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
+            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+            if len(l1) == 0 and len(l2) == 0: #Profile exists, but there are no deposits or expenses yet
+                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
+                label2.grid()
+            else:
+                if len(l2) == 0:
+                    rows = len(l1)
+                    columns = len(l1[0])
+                    for i in range(rows):
+                        for j in range(columns):
+                            self.e = Entry(self)
+                            self.e.grid(row=i, column=j)
+                            self.e.insert(END, l1[i][j])
+                else:
+                    l3 = l1 + l2
+                    rows = len(l3)
+                    columns = len(l3[0])
 
-            for i in range(rows):
-                for j in range(columns):
-                    self.e = Entry(self)
-                    self.e.grid(row=i, column=j)
-                    self.e.insert(END, l1[i][j])
-        else:
-            l3 = l1 + l2
-            rows = len(l3)
-            columns = len(l3[0])
-
-            for i in range(rows):
-                for j in range(columns):
-                    self.e = Entry(self)
-                    self.e.grid(row=i, column=j)
-                    self.e.insert(END, l3[i][j])
-
-        # expense_list = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-        # rows2 = len(expense_list)
-        # columns2 = len(expense_list[0])
-        # for i in range(rows2):
-        #     for j in range(columns2):
-        #         self.e = Entry(self)
-        #         self.e.grid(row=i, column=j)
-        #         self.e.insert(END, expense_list[i][j])
+                    for i in range(rows):
+                        for j in range(columns):
+                            self.e = Entry(self)
+                            self.e.grid(row=i, column=j)
+                            self.e.insert(END, l3[i][j])
 
         button = tk.Button(self, text="Refresh", command=lambda: refresh())
         button.grid()
@@ -1102,6 +1079,6 @@ class BMBudgetHistory(tk.Frame): #Budget History
         button.grid()
 
 if __name__ == "__main__":
-    app = SampleApp()
+    app = FiMan()
     app.geometry("700x500")
     app.mainloop()
