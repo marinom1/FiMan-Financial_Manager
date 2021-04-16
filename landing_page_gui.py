@@ -88,6 +88,12 @@ class FiMan(tk.Tk):
 
 class StartPage(tk.Frame): # Welcome to FiMan
     def __init__(self, parent, controller):
+
+        def updatePageSix(): # Removes need for refresh button on PageSix
+            app.frames["PageSix"].destroy()
+            app.frames["PageSix"] = PageSix(parent, controller)
+            app.frames["PageSix"].grid(row=0, column=0, sticky="nsew")
+
         def exit_program():
             exit(0)
         tk.Frame.__init__(self, parent)
@@ -97,7 +103,7 @@ class StartPage(tk.Frame): # Welcome to FiMan
 
         button1 = tk.Button(self, text="Register", width=8, command=lambda: controller.show_frame("PageOne"))
         button1.pack()
-        button2 = tk.Button(self, text="Login", width=8, command=lambda: controller.show_frame("PageSix"))
+        button2 = tk.Button(self, text="Login", width=8, command=lambda: [updatePageSix(), controller.show_frame("PageSix")])
         button2.pack()
         button3 = tk.Button(self, text="Exit", width=8, command=lambda: exit_program())
         button3.pack()
@@ -292,17 +298,8 @@ class PageFive(tk.Frame): # Registration Successful
 class PageSix(tk.Frame): # Login to Existing Profile
     def __init__(self, parent, controller):
         def get_profile_ID(i):
-            print("Profile ID in Login to Existing Profile is:",i)
             global current_profile_ID
             current_profile_ID = i
-            print("The current_profile_ID is:", current_profile_ID)
-
-        def refresh_profiles():
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            # Destroy the existing stuff
-            for widget in PageFour.winfo_children(self):
-                widget.destroy()
-
             label = tk.Label(self, text="Please select your profile", font=controller.title_font)
             label.pack(side="top", fill="x", pady=10)
             if there_are_existing_profiles:
@@ -315,9 +312,6 @@ class PageSix(tk.Frame): # Login to Existing Profile
             else:
                 label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first", font=controller.title_font)
                 label2.pack(side="top", fill="x", pady=10)
-            button1 = tk.Button(self, text="Click here to refresh profiles",
-                                command=lambda: [refresh_profiles()])
-            button1.pack()
             button2 = tk.Button(self, text="Back", width=8,
                                 command=lambda: controller.show_frame("StartPage"))
             button2.pack()
@@ -339,8 +333,6 @@ class PageSix(tk.Frame): # Login to Existing Profile
             label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first",
                               font=controller.title_font)
             label2.pack(side="top", fill="x", pady=10)
-        button1 = tk.Button(self, text="Click here to refresh profiles", command=lambda: [refresh_profiles()])
-        button1.pack()
         button2 = tk.Button(self, text="Back", width=8,
                                        command=lambda: controller.show_frame("StartPage"))
         button2.pack()
