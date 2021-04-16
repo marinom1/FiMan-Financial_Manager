@@ -96,6 +96,7 @@ class StartPage(tk.Frame): # Welcome to FiMan
 
         def exit_program():
             exit(0)
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
@@ -111,20 +112,32 @@ class StartPage(tk.Frame): # Welcome to FiMan
 class PageOne(tk.Frame): # Register a new profile (Enter name)
     def __init__(self, parent, controller):
         def check_name(new_name_var):
+            nameAlreadyTaken = False
             name = new_name_var.get()
-            if (name.isspace()) or (name == ""): # invalid name
+            listOfExistingProfileNames = []
+            for i in range(len(loaded_profiles["profiles"])):
+                listOfExistingProfileNames.append(loaded_profiles["profiles"][i]["name"])
+            if name in listOfExistingProfileNames:
+                nameAlreadyTaken = True
+            if (name.isspace()) or (name == "") or (nameAlreadyTaken == True): # invalid name
                 # Destroy the existing stuff
                 for widget in PageFour.winfo_children(self):
                     widget.destroy()
                 label = tk.Label(self, text="Step 1 of 4", font=controller.title_font)
                 label.pack(side="top", fill="x", pady=10)
-                label1 = tk.Label(self, text="Please enter a VALID name")
-                label1.pack()
+                if (name.isspace() or name == ""):
+                    label1 = tk.Label(self, text="Please enter a VALID name - That name is blank")
+                    label1.pack()
+                elif nameAlreadyTaken == True:
+                    label1 = tk.Label(self, text="Please enter a VALID name - That name is already taken")
+                    label1.pack()
                 new_name_var = tk.StringVar()
                 entry = tk.Entry(self, width=15, textvariable=new_name_var)
                 entry.pack()
                 button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
                 button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
             else: #valid input, store their name and move to next registration step
                 print("new_name_var is:", name)
                 global new_name
@@ -142,8 +155,11 @@ class PageOne(tk.Frame): # Register a new profile (Enter name)
         entry.pack()
         button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageTwo(tk.Frame): # Register a new profile (Choose Features)
+
     def store_details(self, feature1_var, feature2_var):
         print("Is feature 1 checked off:",feature1_var.get())
         print("Is feature 2 checked off:", feature2_var.get())
@@ -151,7 +167,6 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         new_enabled_features = []
         print("type of new_enabled_features is:",type(new_enabled_features))
         if feature1_var.get():
-            print("Does this run")
             new_enabled_features.append("1")
         if feature2_var.get():
             new_enabled_features.append("2")
@@ -159,6 +174,62 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         print("new_enabled_features is:", new_enabled_features)
 
     def __init__(self, parent, controller):
+        def check_valid_input(self, feature1_var, feature2_var):
+            self.store_details(feature1_var, feature2_var)
+            if not new_enabled_features: #If user didnt select any features
+                # Destroy the existing stuff
+                for widget in PageTwo.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 2 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+
+                # Budget Manager descriptions
+                label1 = tk.Label(self, text="1. The Budget Manager allows users to:")
+                label1.pack()
+                label2 = tk.Label(self, text="- Set their current balance")
+                label2.pack()
+                label3 = tk.Label(self, text="- Set a target balance")
+                label3.pack()
+                label4 = tk.Label(self, text="- View helpful financial notifications")
+                label4.pack()
+                label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
+                label5.pack()
+                labelSpace = tk.Label(self, text="")
+                labelSpace.pack()
+                # Stock Market tool descriptions
+                label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
+                label6.pack()
+                label7 = tk.Label(self,
+                                  text="- Select a sector to focus on that will filter for news that is specific to that sector")
+                label7.pack()
+                label8 = tk.Label(self, text="- Allow users to view a list of stocks and their recent performance")
+                label8.pack()
+                label9 = tk.Label(self,
+                                  text="- Allows users to view a news feed regarding recent events in the general stock market")
+                label9.pack()
+                labelSpace = tk.Label(self, text="")
+                labelSpace.pack()
+                # End of descriptions
+                label10 = tk.Label(self,
+                                   text="CHECK OFF AT LEAST 1 BOX - Please check off the features you would like to enable (Can change later)")
+                label10.pack()
+
+                # Checkboxes
+                feature1_var = tk.IntVar()
+                feature2_var = tk.IntVar()
+                checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
+                checkbutton1.pack()
+                checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
+                checkbutton2.pack()
+
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+            else:  # Valid user input
+                controller.show_frame("PageThree")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Step 2 of 4", font=controller.title_font)
@@ -175,10 +246,8 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         label4.pack()
         label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
         label5.pack()
-
         labelSpace = tk.Label(self, text="")
         labelSpace.pack()
-
         # Stock Market tool descriptions
         label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
         label6.pack()
@@ -188,10 +257,8 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         label8.pack()
         label9 = tk.Label(self, text="- Allows users to view a news feed regarding recent events in the general stock market")
         label9.pack()
-
         labelSpace = tk.Label(self, text="")
         labelSpace.pack()
-
         # End of descriptions
         label10 = tk.Label(self, text="Please check off the features you would like to enable (Can change later)")
         label10.pack()
@@ -204,8 +271,10 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
-        button = tk.Button(self, text="Next", command=lambda: [ self.store_details(feature1_var,feature2_var), controller.show_frame("PageThree")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageThree(tk.Frame): # Register a new profile (Enter balance)
     def print_balance(self, new_balance_var):
@@ -226,6 +295,8 @@ class PageThree(tk.Frame): # Register a new profile (Enter balance)
         entry.pack()
         button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), controller.show_frame("PageFour")])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageFour(tk.Frame): # Register a new profile (Enter budget)
     def print_balance(self, new_budget_var):
@@ -282,6 +353,8 @@ class PageFour(tk.Frame): # Register a new profile (Enter budget)
         entry.pack()
         button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), self.write_new_profile_to_file(), controller.show_frame("PageFive")])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageFive(tk.Frame): # Registration Successful
     def __init__(self, parent, controller):
@@ -1040,5 +1113,6 @@ class BMBudgetHistory(tk.Frame): #Budget History
 
 if __name__ == "__main__":
     app = FiMan()
+    app.title('FiMan')
     app.geometry("700x500")
     app.mainloop()
