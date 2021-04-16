@@ -703,8 +703,7 @@ class SMNewsAndArticlesPage(tk.Frame):
             webbrowser.open_new(url)
 
         generatedArticles = getMarketNews()
-
-        for article in range(0, 99):
+        for article in range(len(generatedArticles)):
             imageLink = generatedArticles[article]['image']
             headline = generatedArticles[article]['headline']
             datetimeTimeStamp = generatedArticles[article]['datetime']
@@ -752,22 +751,23 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 
 class BudgetManagerHomePage(tk.Frame):
 
-    # def notification(self):
-    #     x = random.randint(1, 5)  # generate random int between 1 and 4
-    #     if (x == 1):
-    #         if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
-    #             return "You have more money than the average American has in the bank (> $3,400)"
-    #         else:
-    #             return "You have less money than the average American has in the bank (> $3,400)"
-    #     elif (x == 2):
-    #         if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
-    #             return "The average american spends $5,102 in a month. Your budget is currently more than that"
-    #         else:
-    #             return "The average american spends $5,102 in a month. Your budget is currently less than that"
-    #     elif (x == 3):
-    #         return "Are you taking into consideration your retirement plan?"
-    #     elif (x == 4):
-    #         return "Only 30% of American households have a long-term financial plan"
+    def notification(self):
+        x = random.randint(1, 5)  # generate random int between 1 and 4
+        if (x == 1):
+            if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
+                return "You have more money than the average American has in the bank (> $3,400)"
+            else:
+                return "You have less money than the average American has in the bank (> $3,400)"
+        elif (x == 2):
+            if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
+                return "The average american spends $5,102 in a month. Your budget is currently more than that"
+            else:
+                return "The average american spends $5,102 in a month. Your budget is currently less than that"
+        elif (x == 3):
+            return "Are you taking into consideration your retirement plan?"
+        elif (x == 4):
+            return "Only 30% of American households have a long-term financial plan"
+
     def __init__(self, parent, controller):
         def refresh():
             print("Does this print 1")
