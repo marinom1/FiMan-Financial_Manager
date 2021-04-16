@@ -363,6 +363,12 @@ class PageEight(tk.Frame): # Home Page
     def __init__(self, parent, controller):
         var = tk.StringVar()
         var.set("")
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         def show_profile_details():
             there_are_existing_profiles, loaded_profiles = load_existing_profiles()
             var.set(loaded_profiles["profiles"][current_profile_ID])
@@ -374,7 +380,7 @@ class PageEight(tk.Frame): # Home Page
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
 
-        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: controller.show_frame("BudgetManagerHomePage"))
+        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
         button1.pack()
         button2 = tk.Button(self, text="Stock Market", width=17, command=lambda: controller.show_frame("StockMarketHomePage"))
         button2.pack()
@@ -760,48 +766,21 @@ class BudgetManagerHomePage(tk.Frame):
         elif (x == 4):
             return "Only 30% of American households have a long-term financial plan"
 
-    def __init__(self, parent, controller):
-        def refresh():
-            print("Does this print 1")
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            # Destroy the existing stuff
-            for widget in BudgetManagerHomePage.winfo_children(self):
-                widget.destroy()
-            label = tk.Label(self, text="Budget Manager")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text="Your current balance is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text="Your current budget is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
-            label.pack(side="top", fill="x", pady=10)
 
-            button1 = tk.Button(self, text="Adjust total balance",
-                                command=lambda: controller.show_frame("BMAdjustBalance"))
-            button2 = tk.Button(self, text="Adjust budget",
-                                command=lambda: controller.show_frame("BMAdjustBudget"))
-            button3 = tk.Button(self, text="Enter a deposit",
-                                command=lambda: controller.show_frame("BMEnterDeposit"))
-            button4 = tk.Button(self, text="Enter an expense",
-                                command=lambda: controller.show_frame("BMEnterExpense"))
-            button5 = tk.Button(self, text="View full budget history",
-                                command=lambda: controller.show_frame("BMBudgetHistory"))
-            button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
-            button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
-            button1.pack()
-            button2.pack()
-            button3.pack()
-            button4.pack()
-            button5.pack()
-            button7.pack()
-            button8.pack()
+    def __init__(self, parent, controller):
+
+        def updateBMBudgetHistory():
+            app.frames["BMBudgetHistory"].destroy()
+            app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
+            app.frames["BMBudgetHistory"].grid(row=0, column=0, sticky="nsew")
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
         label.pack(side="top", fill="x", pady=10)
+        global there_are_existing_profiles
+        global loaded_profiles
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
         if (there_are_existing_profiles):
             label = tk.Label(self, text="Your current balance is:")
             label.pack(side="top", fill="x", pady=10)
@@ -821,21 +800,17 @@ class BudgetManagerHomePage(tk.Frame):
         button4 = tk.Button(self, text="Enter an expense",
                             command=lambda: controller.show_frame("BMEnterExpense"))
         button5 = tk.Button(self, text="View full budget history",
-                            command=lambda: controller.show_frame("BMBudgetHistory"))
+                            command=lambda: [updateBMBudgetHistory(), controller.show_frame("BMBudgetHistory")])
         button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
-        button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
         button1.pack()
         button2.pack()
         button3.pack()
         button4.pack()
         button5.pack()
         button7.pack()
-        button8.pack()
 
-        # label = tk.Label(self, text= "notification")
-        # label.pack(side="top", fill="x", pady=10)
 
-class BMAdjustBalance(tk.Frame): #Adjust total balance
+class BMAdjustBalance(tk.Frame): #Adjust balance
 
     def store_balance(self, new_balance_var):
         bal = new_balance_var.get()
@@ -852,6 +827,12 @@ class BMAdjustBalance(tk.Frame): #Adjust total balance
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="Please enter your new balance")
@@ -860,7 +841,7 @@ class BMAdjustBalance(tk.Frame): #Adjust total balance
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
         button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_balance(new_balance_var),
+                           command=lambda: [self.store_balance(new_balance_var), updateBudgetManagerHomePage(),
                                             controller.show_frame("BudgetManagerHomePage")])
         button.pack()
 
@@ -881,6 +862,12 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="Please enter your new budget")
@@ -889,7 +876,7 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
         entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
         button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_budget(new_budget_var),
+                           command=lambda: [self.store_budget(new_budget_var), updateBudgetManagerHomePage(),
                                             controller.show_frame("BudgetManagerHomePage")])
         button.pack()
 
@@ -925,6 +912,12 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="What is the deposit?")
@@ -943,7 +936,7 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
         entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
         entry.pack()
         button = tk.Button(self, text="Confirm",
-                           command=lambda: [self.store_deposit_info(new_depositname_var,new_depositvalue_var,new_depositdate_var),
+                           command=lambda: [self.store_deposit_info(new_depositname_var,new_depositvalue_var,new_depositdate_var), updateBudgetManagerHomePage(),
                                             controller.show_frame("BudgetManagerHomePage")])
         button.pack()
 
@@ -978,6 +971,12 @@ class BMEnterExpense(tk.Frame): #Enter an expense
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="What is the expense?")
@@ -996,46 +995,17 @@ class BMEnterExpense(tk.Frame): #Enter an expense
         entry = tk.Entry(self, width=15, textvariable=new_expensedate_var)
         entry.pack()
         button = tk.Button(self, text="Confirm",
-                           command=lambda: [self.store_expense_info(new_expensename_var,new_expensevalue_var,new_expensedate_var),
+                           command=lambda: [self.store_expense_info(new_expensename_var,new_expensevalue_var,new_expensedate_var), updateBudgetManagerHomePage(),
                                             controller.show_frame("BudgetManagerHomePage")])
         button.pack()
 
 class BMBudgetHistory(tk.Frame): #Budget History
     def __init__(self, parent, controller):
-        def refresh():
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            for widget in BMBudgetHistory.winfo_children(self):
-                widget.destroy()
 
-            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
-            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            if len(l1) == 0 and len(l2) == 0:  # Profile exists, but there are no deposits or expenses yet
-                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
-                label2.grid()
-            else:
-                if len(l2) == 0:
-                    rows = len(l1)
-                    columns = len(l1[0])
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l1[i][j])
-                else:
-                    l3 = l1 + l2
-                    rows = len(l3)
-                    columns = len(l3[0])
-
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l3[i][j])
-
-            button = tk.Button(self, text="Refresh", command=lambda: refresh())
-            button.grid()
-            button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
-            button.grid()
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1065,9 +1035,7 @@ class BMBudgetHistory(tk.Frame): #Budget History
                             self.e.grid(row=i, column=j)
                             self.e.insert(END, l3[i][j])
 
-        button = tk.Button(self, text="Refresh", command=lambda: refresh())
-        button.grid()
-        button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
+        button = tk.Button(self, text="Back", command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
         button.grid()
 
 if __name__ == "__main__":
