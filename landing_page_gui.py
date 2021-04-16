@@ -89,6 +89,11 @@ class FiMan(tk.Tk):
 class StartPage(tk.Frame): # Welcome to FiMan
     def __init__(self, parent, controller):
 
+        def updatePageOne():
+            app.frames["PageOne"].destroy()
+            app.frames["PageOne"] = PageOne(parent, controller)
+            app.frames["PageOne"].grid(row=0, column=0, sticky="nsew")
+
         def updatePageSix(): # Removes need for refresh button on PageSix
             app.frames["PageSix"].destroy()
             app.frames["PageSix"] = PageSix(parent, controller)
@@ -102,7 +107,7 @@ class StartPage(tk.Frame): # Welcome to FiMan
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
         label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Register", width=8, command=lambda: controller.show_frame("PageOne"))
+        button1 = tk.Button(self, text="Register", width=8, command=lambda: [updatePageOne(), controller.show_frame("PageOne")])
         button1.pack()
         button2 = tk.Button(self, text="Login", width=8, command=lambda: [updatePageSix(), controller.show_frame("PageSix")])
         button2.pack()
@@ -277,12 +282,6 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         button1.pack()
 
 class PageThree(tk.Frame): # Register a new profile (Enter balance)
-    def print_balance(self, new_balance_var):
-        balance = new_balance_var.get()
-        print("new_name_var is:", balance)
-        global new_balance
-        new_balance = balance
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -293,54 +292,39 @@ class PageThree(tk.Frame): # Register a new profile (Enter balance)
         new_balance_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), controller.show_frame("PageFour")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_balance_var), ])
         button.pack()
         button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
 
+        def check_valid_input(new_balance_var):
+            try:
+                balance = new_balance_var.get()
+                if balance < 0:
+                    print("balance is number but is negative")
+                    raise ValueError('balance is number but is negative')
+                balance = round(balance, 2) #Rounds balance to 2 decimal places
+                global new_balance
+                new_balance = balance
+                controller.show_frame("PageFour")
+            except:
+                print("invalid new_balance_var inputted")
+                for widget in PageThree.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 3 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+                label1 = tk.Label(self, text="Please enter a valid balance")
+                label1.pack()
+                new_balance_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+                entry.pack()
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(new_balance_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
 class PageFour(tk.Frame): # Register a new profile (Enter budget)
-    def print_balance(self, new_budget_var):
-        budget = new_budget_var.get()
-        print("new_name_var is:", budget)
-        global new_budget
-        new_budget = budget
-
-    def write_new_profile_to_file(self):
-        """Make the new profile official in profiles.json"""
-        global new_name
-        global new_enabled_features
-        global new_balance
-        global new_budget
-        # if there aren't any existing profiles in profiles.json
-        if there_are_existing_profiles == False:
-            # Must create the json object from scratch first since it does not exist yet
-            data = {}
-            data['profiles'] = []
-            data['profiles'].append({
-                'name': new_name,
-                'features': new_enabled_features,
-                'total_balance': new_balance,
-                'budget': new_budget,
-                'deposits': [],
-                'expenses': []
-            })
-            with open('profiles.json', 'w') as outfile:
-                json.dump(data, outfile, indent=2, sort_keys=False)
-
-        # else if there are already existing profiles in profiles.json
-        elif there_are_existing_profiles == True:
-            # Simply append the new profile data to the profiles.json file
-            loaded_profiles['profiles'].append({
-                'name': new_name,
-                'features': new_enabled_features,
-                'total_balance': new_balance,
-                'budget': new_budget,
-                'deposits': [],
-                'expenses': []
-            })
-            with open('profiles.json', 'w') as outfile:
-                json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -348,13 +332,84 @@ class PageFour(tk.Frame): # Register a new profile (Enter budget)
         label.pack(side="top", fill="x", pady=10)
         label1 = tk.Label(self, text="Please enter your budget")
         label1.pack()
-        new_balance_var = tk.DoubleVar()
-        entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+        new_budget_var = tk.DoubleVar()
+        entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), self.write_new_profile_to_file(), controller.show_frame("PageFive")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
         button.pack()
         button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
+
+        def check_valid_input(new_budget_var):
+            try:
+                print("i will now test the .get()")
+                budget = new_budget_var.get()
+                print("new_budget_var succeeds the .get call")
+                if budget < 0:
+                    print("budget is number but is negative")
+                    raise ValueError('budget is number but is negative')
+                print("I got past the if statement")
+                budget = round(budget, 2)  # Rounds budget to 2 decimal places
+                global new_budget
+                new_budget = budget
+                write_new_profile_to_file()
+                controller.show_frame("PageFive")
+            except:
+                print("invalid new_budget_var inputted")
+                for widget in PageThree.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 4 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+                label1 = tk.Label(self, text="Please enter a valid budget")
+                label1.pack()
+                new_budget_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_budget_var)
+                entry.pack()
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(new_budget_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
+        def write_new_profile_to_file():
+            """Make the new profile official in profiles.json"""
+            global new_name
+            global new_enabled_features
+            global new_balance
+            global new_budget
+            # if there aren't any existing profiles in profiles.json
+            if there_are_existing_profiles == False:
+                # Must create the json object from scratch first since it does not exist yet
+                data = {}
+                data['profiles'] = []
+                data['profiles'].append({
+                    'name': new_name,
+                    'features': new_enabled_features,
+                    'total_balance': new_balance,
+                    'budget': new_budget,
+                    'deposits': [],
+                    'expenses': []
+                })
+                with open('profiles.json', 'w') as outfile:
+                    json.dump(data, outfile, indent=2, sort_keys=False)
+
+            # else if there are already existing profiles in profiles.json
+            elif there_are_existing_profiles == True:
+                # Simply append the new profile data to the profiles.json file
+                loaded_profiles['profiles'].append({
+                    'name': new_name,
+                    'features': new_enabled_features,
+                    'total_balance': new_balance,
+                    'budget': new_budget,
+                    'deposits': [],
+                    'expenses': []
+                })
+                with open('profiles.json', 'w') as outfile:
+                    json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
+
+
+
+
 
 class PageFive(tk.Frame): # Registration Successful
     def __init__(self, parent, controller):
@@ -484,20 +539,6 @@ class PageNine(tk.Frame): # Settings - Michael
         button3.pack()
 
 class PageTen(tk.Frame): # Settings - Change Name
-    def store_name(self, new_name_var):
-        name = new_name_var.get()
-        print("new_name_var is:", name)
-        global new_name
-        new_name = name
-        # Now update profiles.json with new name
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["name"] = new_name
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -506,8 +547,52 @@ class PageTen(tk.Frame): # Settings - Change Name
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.store_name(new_name_var), controller.show_frame("PageEleven")])
+        button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+        button1.pack()
+
+        def store_name(new_name_var):
+            nameAlreadyTaken = False
+            name = new_name_var.get()
+            listOfExistingProfileNames = []
+            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+            for i in range(len(loaded_profiles["profiles"])):
+                listOfExistingProfileNames.append(loaded_profiles["profiles"][i]["name"])
+            global new_name
+            new_name = name
+            if name in listOfExistingProfileNames:
+                print("Namealreadytaken: ", nameAlreadyTaken)
+                nameAlreadyTaken = True
+            if name.isspace() or name == "" or nameAlreadyTaken:  # invalid
+                print("name was space or blank")
+                # Destroy the existing stuff
+                for widget in PageTwo.winfo_children(self):
+                    widget.destroy()
+                if name.isspace() or name == "":
+                    label1 = tk.Label(self, text="Please enter non blank name")
+                    label1.pack()
+                elif nameAlreadyTaken:
+                    label1 = tk.Label(self, text="Please choose another name - name already taken")
+                    label1.pack()
+                new_name_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_name_var)
+                entry.pack()
+                button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                button1.pack()
+            else: #Valid
+                # Now update profiles.json with new name
+                print("Valid name")
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["name"] = new_name
+
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                controller.show_frame("PageEleven")
 
 class PageEleven(tk.Frame): # Name change Successful
     def __init__(self, parent, controller):
@@ -520,12 +605,6 @@ class PageEleven(tk.Frame): # Name change Successful
 
 class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
         def store_details(self, feature1_var, feature2_var):
-            global new_enabled_features
-            new_enabled_features = []
-            if feature1_var.get():
-                new_enabled_features.append("1")
-            if feature2_var.get():
-                new_enabled_features.append("2")
             # Now update profiles.json with new features
             with open('profiles.json', "r+") as file:
                 loaded_profiles = json.load(file)
@@ -535,6 +614,69 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
                 json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
         def __init__(self, parent, controller):
+
+            def check_valid_input(self, feature1_var, feature2_var):
+                global new_enabled_features
+                new_enabled_features = []
+                if feature1_var.get():
+                    new_enabled_features.append("1")
+                if feature2_var.get():
+                    new_enabled_features.append("2")
+                if not new_enabled_features:  # If user didnt select any features
+                    # Destroy the existing stuff
+                    for widget in PageTwo.winfo_children(self):
+                        widget.destroy()
+                    label = tk.Label(self, text="Change Features", font=controller.title_font)
+                    label.pack(side="top", fill="x", pady=10)
+
+                    # Budget Manager descriptions
+                    label1 = tk.Label(self, text="1. The Budget Manager allows users to:")
+                    label1.pack()
+                    label2 = tk.Label(self, text="- Set their current balance")
+                    label2.pack()
+                    label3 = tk.Label(self, text="- Set a target balance")
+                    label3.pack()
+                    label4 = tk.Label(self, text="- View helpful financial notifications")
+                    label4.pack()
+                    label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
+                    label5.pack()
+                    labelSpace = tk.Label(self, text="")
+                    labelSpace.pack()
+                    # Stock Market tool descriptions
+                    label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
+                    label6.pack()
+                    label7 = tk.Label(self,
+                                      text="- Select a sector to focus on that will filter for news that is specific to that sector")
+                    label7.pack()
+                    label8 = tk.Label(self, text="- Allow users to view a list of stocks and their recent performance")
+                    label8.pack()
+                    label9 = tk.Label(self,
+                                      text="- Allows users to view a news feed regarding recent events in the general stock market")
+                    label9.pack()
+                    labelSpace = tk.Label(self, text="")
+                    labelSpace.pack()
+                    # End of descriptions
+                    label10 = tk.Label(self,
+                                       text="CHECK OFF AT LEAST 1 BOX - Please check off the features you would like to enable (Can change later)")
+                    label10.pack()
+
+                    # Checkboxes
+                    feature1_var = tk.IntVar()
+                    feature2_var = tk.IntVar()
+                    checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
+                    checkbutton1.pack()
+                    checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
+                    checkbutton2.pack()
+
+                    button = tk.Button(self, text="Next",
+                                       command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                    button.pack()
+                    button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                    button1.pack()
+                else:  # Valid user input
+                    self.store_details(feature1_var, feature2_var)
+                    controller.show_frame("PageThirteen")
+
             tk.Frame.__init__(self, parent)
             self.controller = controller
             label = tk.Label(self, text="Change Features", font=controller.title_font)
@@ -577,7 +719,7 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
             checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
             checkbutton2.pack()
 
-            button = tk.Button(self, text="Next", command=lambda: [self.store_details(feature1_var, feature2_var), controller.show_frame("PageThirteen")])
+            button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
             button.pack()
 
 class PageThirteen(tk.Frame): # Enabled Features Change Successful
