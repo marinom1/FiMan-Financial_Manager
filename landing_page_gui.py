@@ -1387,7 +1387,8 @@ class BMEnterExpense(tk.Frame): #Enter an expense
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
 class BMBudgetHistory(tk.Frame): #Budget History
-    # - Shows 26 transactions on default window size in current implementation
+    # Inspiration: https://stackoverflow.com/questions/4066974/scrolling-multiple-tkinter-listboxes-together
+
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1395,33 +1396,41 @@ class BMBudgetHistory(tk.Frame): #Budget History
         # button.grid(row=1, column=4)
         button.pack()
 
-        # the shared scrollbar
-        self.scrollbar = Scrollbar(self, orient='vertical')
+        if len(loaded_profiles["profiles"][current_profile_ID]["expenses"])<1 and len(loaded_profiles["profiles"][current_profile_ID]["deposits"]) < 1:
+            print("No history to show")
+            label = tk.Label(self, text="NO HISTORY TO SHOW")
+            label.pack()
+        else:
+            label = tk.Label(self, text="Budget History")
+            label.pack()
+            # the shared scrollbar
+            self.scrollbar = Scrollbar(self, orient='vertical')
 
-        # note that yscrollcommand is set to a custom method for each listbox
-        self.list1 = Listbox(self, yscrollcommand=self.yscroll1)
-        self.list1.pack(fill='y', side='left')
+            # note that yscrollcommand is set to a custom method for each listbox
+            self.list1 = Listbox(self, yscrollcommand=self.yscroll1)
+            self.list1.pack(fill='y', side='left')
 
-        self.list2 = Listbox(self, yscrollcommand=self.yscroll2)
-        self.list2.pack(fill='both', side='left')
+            self.list2 = Listbox(self, yscrollcommand=self.yscroll2)
+            self.list2.pack(fill='both', side='left')
 
-        self.list3 = Listbox(self, yscrollcommand=self.yscroll3)
-        self.list3.pack(fill='both', side='left')
+            self.list3 = Listbox(self, yscrollcommand=self.yscroll3)
+            self.list3.pack(fill='both', side='left')
 
-        self.scrollbar.config(command=self.yview)
-        self.scrollbar.pack(side='right', fill='y')
+            self.scrollbar.config(command=self.yview)
+            self.scrollbar.pack(side='right', fill='y')
 
-        if there_are_existing_profiles:
+            if there_are_existing_profiles:
 
-            # fill the listboxes with stuff
-            for x in range(len(loaded_profiles["profiles"][current_profile_ID]["expenses"])):
-                self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][0])
-                self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][1])
-                self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][2])
-            for x in range(len(loaded_profiles["profiles"][current_profile_ID]["deposits"])):
-                self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][0])
-                self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][1])
-                self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][2])
+                # fill the listboxes with stuff
+                for x in range(len(loaded_profiles["profiles"][current_profile_ID]["expenses"])):
+                    self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][0])
+                    self.list2.insert('end', -loaded_profiles["profiles"][current_profile_ID]["expenses"][x][1])
+                    self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][2])
+                for x in range(len(loaded_profiles["profiles"][current_profile_ID]["deposits"])):
+                    self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][0])
+                    self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][1])
+                    self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][2])
+
 
         def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
             app.frames["BudgetManagerHomePage"].destroy()
