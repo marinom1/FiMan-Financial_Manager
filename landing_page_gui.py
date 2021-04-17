@@ -1387,42 +1387,94 @@ class BMEnterExpense(tk.Frame): #Enter an expense
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
 class BMBudgetHistory(tk.Frame): #Budget History
+    # - Shows 26 transactions on default window size in current implementation
     def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        button = tk.Button(self, text="Back", command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
+        # button.grid(row=1, column=4)
+        button.pack()
+
+        # the shared scrollbar
+        self.scrollbar = Scrollbar(self, orient='vertical')
+
+        # note that yscrollcommand is set to a custom method for each listbox
+        self.list1 = Listbox(self, yscrollcommand=self.yscroll1)
+        self.list1.pack(fill='y', side='left')
+
+        self.list2 = Listbox(self, yscrollcommand=self.yscroll2)
+        self.list2.pack(fill='both', side='left')
+
+        self.list3 = Listbox(self, yscrollcommand=self.yscroll3)
+        self.list3.pack(fill='both', side='left')
+
+        self.scrollbar.config(command=self.yview)
+        self.scrollbar.pack(side='right', fill='y')
+
+        if there_are_existing_profiles:
+
+            # fill the listboxes with stuff
+            for x in range(len(loaded_profiles["profiles"][current_profile_ID]["expenses"])):
+                self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][0])
+                self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][1])
+                self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][2])
+            for x in range(len(loaded_profiles["profiles"][current_profile_ID]["deposits"])):
+                self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][0])
+                self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][1])
+                self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][2])
+
         def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
             app.frames["BudgetManagerHomePage"].destroy()
             app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
             app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
 
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        if (there_are_existing_profiles):
-            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
-            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            if len(l1) == 0 and len(l2) == 0: #Profile exists, but there are no deposits or expenses yet
-                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
-                label2.grid()
-            else:
-                if len(l2) == 0:
-                    rows = len(l1)
-                    columns = len(l1[0])
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l1[i][j])
-                else:
-                    l3 = l1 + l2
-                    rows = len(l3)
-                    columns = len(l3[0])
+    def yscroll1(self, *args):
+        if self.list2.yview() != self.list1.yview():
+            self.list2.yview_moveto(args[0])
+        self.scrollbar.set(*args)
 
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l3[i][j])
+    def yscroll2(self, *args):
+        if self.list1.yview() != self.list2.yview():
+            self.list1.yview_moveto(args[0])
+        self.scrollbar.set(*args)
 
-        button = tk.Button(self, text="Back", command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
-        button.grid()
+    def yscroll3(self, *args):
+        if self.list1.yview() != self.list3.yview():
+            self.list3.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yview(self, *args):
+        self.list1.yview(*args)
+        self.list2.yview(*args)
+        self.list3.yview(*args)
+
+        # if (there_are_existing_profiles):
+        #     l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
+        #     l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+        #     if len(l1) == 0 and len(l2) == 0: #Profile exists, but there are no deposits or expenses yet
+        #         label2 = tk.Label(self, text="NO HISTORY TO SHOW")
+        #         label2.grid()
+        #     else:
+        #         if len(l2) == 0:
+        #             rows = len(l1)
+        #             columns = len(l1[0])
+        #             for i in range(rows):
+        #                 for j in range(columns):
+        #                     self.e = Entry(self)
+        #                     self.e.grid(row=i, column=j)
+        #                     self.e.insert(END, l1[i][j])
+        #         else:
+        #             l3 = l1 + l2
+        #             rows = len(l3)
+        #             columns = len(l3[0])
+        #
+        #             for i in range(rows):
+        #                 for j in range(columns):
+        #                     self.e = Entry(self)
+        #                     self.e.grid(row=i, column=j)
+        #                     self.e.insert(END, l3[i][j])
+
+
 
 if __name__ == "__main__":
     app = FiMan()
