@@ -981,6 +981,11 @@ class BudgetManagerHomePage(tk.Frame):
             app.frames["BMEnterDeposit"] = BMEnterDeposit(parent, controller)
             app.frames["BMEnterDeposit"].grid(row=0, column=0, sticky="nsew")
 
+        def updateBMEnterExpense():
+            app.frames["BMEnterExpense"].destroy()
+            app.frames["BMEnterExpense"] = BMEnterExpense(parent, controller)
+            app.frames["BMEnterExpense"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
@@ -1005,7 +1010,7 @@ class BudgetManagerHomePage(tk.Frame):
         button3 = tk.Button(self, text="Enter a deposit",
                             command=lambda: [updateBMEnterDeposit(), controller.show_frame("BMEnterDeposit")])
         button4 = tk.Button(self, text="Enter an expense",
-                            command=lambda: controller.show_frame("BMEnterExpense"))
+                            command=lambda: [updateBMEnterExpense(), controller.show_frame("BMEnterExpense")])
         button5 = tk.Button(self, text="View full budget history",
                             command=lambda: [updateBMBudgetHistory(), controller.show_frame("BMBudgetHistory")])
         button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
@@ -1238,6 +1243,7 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
         new_depositname = depositname
 
         depositvalue = new_depositvalue_var.get()
+        depositvalue = round(depositvalue, 2)
         print("new_depositvalue_var is:", depositvalue)
         global new_depositvalue
         new_depositvalue = depositvalue
@@ -1260,42 +1266,7 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
 class BMEnterExpense(tk.Frame): #Enter an expense
-    def store_expense_info(self, new_expensename_var, new_expensevalue_var, new_expensedate_var):
-        expensename = new_expensename_var.get()
-        print("new_expensename_var is:", expensename)
-        global new_expensename
-        new_expensename = expensename
-
-        expensevalue = new_expensevalue_var.get()
-        print("new_expensevalue_var is:", expensevalue)
-        global new_expensevalue
-        new_expensevalue = expensevalue
-
-        expensedate = new_expensedate_var.get()
-        print("new_expensedate_var is:", expensedate)
-        global new_expensedate
-        new_expensedate = expensedate
-
-        new_expense_info = [new_expensename, new_expensevalue, new_expensedate]
-
-        # Now update profiles.json with new expense
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["expenses"].append(new_expense_info)
-            loaded_profiles["profiles"][current_profile_ID]["total_balance"] -= new_expensevalue
-            loaded_profiles["profiles"][current_profile_ID]["budget"] -= new_expensevalue
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
-
-        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
-            app.frames["BudgetManagerHomePage"].destroy()
-            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
-            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
-
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="What is the expense?")
@@ -1314,13 +1285,109 @@ class BMEnterExpense(tk.Frame): #Enter an expense
         entry = tk.Entry(self, width=15, textvariable=new_expensedate_var)
         entry.pack()
         button = tk.Button(self, text="Confirm",
-                           command=lambda: [self.store_expense_info(new_expensename_var,new_expensevalue_var,new_expensedate_var), updateBudgetManagerHomePage(),
-                                            controller.show_frame("BudgetManagerHomePage")])
+                           command=lambda: [check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var): # Checks all 3 fields
+            valid_name = False
+            valid_amount = False
+            valid_date = False
+            # First check name
+            try:
+                name = new_expensename_var.get()
+                if name.isspace() or name == "":
+                    print("Invalid name - it's blank")
+                    raise ValueError("Invalid name - it's blank")
+                valid_name = True
+            except:
+                print("Invalid name")
+
+            # Second, check value
+            try:
+                value = new_expensevalue_var.get()
+                if value < 0:
+                    print("Invalid value - it's negative")
+                    raise ValueError("Invalid value - it is negative")
+                valid_amount = True
+            except:
+                print("Invalid value")
+
+            # Third, check date (should not be empty)
+            date = new_expensedate_var.get()
+            if date.isspace() or date == "":
+                print("Date is blank - BAD")
+            else:
+                valid_date = True
+
+            # Now check if all 3 conditions are true
+            if valid_name and valid_amount and valid_date: # All Valid!
+                self.store_expense_info(new_expensename_var, new_expensevalue_var, new_expensedate_var)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            else: # One or more invalid
+                for widget in BMEnterDeposit.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="One or more inputs invalid - try again")
+                label.pack()
+                label1 = tk.Label(self, text="What is the deposit?")
+                label1.pack()
+                new_depositname_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositname_var)
+                entry.pack()
+                label2 = tk.Label(self, text="Enter in the monetary amount")
+                label2.pack()
+                new_depositvalue_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositvalue_var)
+                entry.pack()
+                label3 = tk.Label(self, text="Enter in the date of deposit")
+                label3.pack()
+                new_depositdate_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
+                entry.pack()
+                button = tk.Button(self, text="Confirm",
+                                   command=lambda: [check_valid_input(new_depositname_var, new_depositvalue_var,new_depositdate_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
+    def store_expense_info(self, new_expensename_var, new_expensevalue_var, new_expensedate_var):
+        expensename = new_expensename_var.get()
+        print("new_expensename_var is:", expensename)
+        global new_expensename
+        new_expensename = expensename
+
+        expensevalue = new_expensevalue_var.get()
+        expensevalue = round(expensevalue, 2)
+        print("new_expensevalue_var is:", expensevalue)
+        global new_expensevalue
+        new_expensevalue = expensevalue
+
+        expensedate = new_expensedate_var.get()
+        print("new_expensedate_var is:", expensedate)
+        global new_expensedate
+        new_expensedate = expensedate
+
+        new_expense_info = [new_expensename, new_expensevalue, new_expensedate]
+
+        # Now update profiles.json with new expense
+        with open('profiles.json', "r+") as file:
+            loaded_profiles = json.load(file)
+            loaded_profiles["profiles"][current_profile_ID]["expenses"].append(new_expense_info)
+            loaded_profiles["profiles"][current_profile_ID]["total_balance"] -= new_expensevalue
+            loaded_profiles["profiles"][current_profile_ID]["budget"] -= new_expensevalue
+        os.remove("profiles.json")
+        with open("profiles.json", "w") as file:
+            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
 class BMBudgetHistory(tk.Frame): #Budget History
     def __init__(self, parent, controller):
-
         def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
             app.frames["BudgetManagerHomePage"].destroy()
             app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
