@@ -962,29 +962,7 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 
 class BudgetManagerHomePage(tk.Frame):
     def __init__(self, parent, controller):
-        def updateBMBudgetHistory():
-            app.frames["BMBudgetHistory"].destroy()
-            app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
-            app.frames["BMBudgetHistory"].grid(row=0, column=0, sticky="nsew")
-        def updateBMAdjustBalance():
-            app.frames["BMAdjustBalance"].destroy()
-            app.frames["BMAdjustBalance"] = BMAdjustBalance(parent, controller)
-            app.frames["BMAdjustBalance"].grid(row=0, column=0, sticky="nsew")
 
-        def updateBMAdjustBudget():
-            app.frames["BMAdjustBudget"].destroy()
-            app.frames["BMAdjustBudget"] = BMAdjustBudget(parent, controller)
-            app.frames["BMAdjustBudget"].grid(row=0, column=0, sticky="nsew")
-
-        def updateBMEnterDeposit():
-            app.frames["BMEnterDeposit"].destroy()
-            app.frames["BMEnterDeposit"] = BMEnterDeposit(parent, controller)
-            app.frames["BMEnterDeposit"].grid(row=0, column=0, sticky="nsew")
-
-        def updateBMEnterExpense():
-            app.frames["BMEnterExpense"].destroy()
-            app.frames["BMEnterExpense"] = BMEnterExpense(parent, controller)
-            app.frames["BMEnterExpense"].grid(row=0, column=0, sticky="nsew")
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1020,6 +998,37 @@ class BudgetManagerHomePage(tk.Frame):
         button4.pack()
         button5.pack()
         button7.pack()
+
+        #Show a notification
+        label0 = tk.Label(self, text="")
+        label0.pack(side="top", fill="x", pady=10)
+        label1 = tk.Label(self, text=self.notification())
+        label1.pack(side="top", fill="x", pady=10)
+
+        def updateBMBudgetHistory():
+            app.frames["BMBudgetHistory"].destroy()
+            app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
+            app.frames["BMBudgetHistory"].grid(row=0, column=0, sticky="nsew")
+        def updateBMAdjustBalance():
+            app.frames["BMAdjustBalance"].destroy()
+            app.frames["BMAdjustBalance"] = BMAdjustBalance(parent, controller)
+            app.frames["BMAdjustBalance"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMAdjustBudget():
+            app.frames["BMAdjustBudget"].destroy()
+            app.frames["BMAdjustBudget"] = BMAdjustBudget(parent, controller)
+            app.frames["BMAdjustBudget"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMEnterDeposit():
+            app.frames["BMEnterDeposit"].destroy()
+            app.frames["BMEnterDeposit"] = BMEnterDeposit(parent, controller)
+            app.frames["BMEnterDeposit"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMEnterExpense():
+            app.frames["BMEnterExpense"].destroy()
+            app.frames["BMEnterExpense"] = BMEnterExpense(parent, controller)
+            app.frames["BMEnterExpense"].grid(row=0, column=0, sticky="nsew")
+
 
     def notification(self):
         x = random.randint(1, 5)  # generate random int between 1 and 4
