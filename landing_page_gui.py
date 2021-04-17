@@ -960,27 +960,7 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 """END OF STOCK MARKET SECTION"""
 
 class BudgetManagerHomePage(tk.Frame):
-
-    def notification(self):
-        x = random.randint(1, 5)  # generate random int between 1 and 4
-        if (x == 1):
-            if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
-                return "You have more money than the average American has in the bank (> $3,400)"
-            else:
-                return "You have less money than the average American has in the bank (> $3,400)"
-        elif (x == 2):
-            if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
-                return "The average american spends $5,102 in a month. Your budget is currently more than that"
-            else:
-                return "The average american spends $5,102 in a month. Your budget is currently less than that"
-        elif (x == 3):
-            return "Are you taking into consideration your retirement plan?"
-        elif (x == 4):
-            return "Only 30% of American households have a long-term financial plan"
-
-
     def __init__(self, parent, controller):
-
         def updateBMBudgetHistory():
             app.frames["BMBudgetHistory"].destroy()
             app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
@@ -989,6 +969,12 @@ class BudgetManagerHomePage(tk.Frame):
             app.frames["BMAdjustBalance"].destroy()
             app.frames["BMAdjustBalance"] = BMAdjustBalance(parent, controller)
             app.frames["BMAdjustBalance"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMAdjustBudget():
+            app.frames["BMAdjustBudget"].destroy()
+            app.frames["BMAdjustBudget"] = BMAdjustBudget(parent, controller)
+            app.frames["BMAdjustBudget"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
@@ -1009,7 +995,7 @@ class BudgetManagerHomePage(tk.Frame):
         button1 = tk.Button(self, text="Adjust total balance",
                             command=lambda: [updateBMAdjustBalance(), controller.show_frame("BMAdjustBalance")])
         button2 = tk.Button(self, text="Adjust budget",
-                            command=lambda: controller.show_frame("BMAdjustBudget"))
+                            command=lambda: [updateBMAdjustBudget(), controller.show_frame("BMAdjustBudget")])
         button3 = tk.Button(self, text="Enter a deposit",
                             command=lambda: controller.show_frame("BMEnterDeposit"))
         button4 = tk.Button(self, text="Enter an expense",
@@ -1023,6 +1009,23 @@ class BudgetManagerHomePage(tk.Frame):
         button4.pack()
         button5.pack()
         button7.pack()
+
+    def notification(self):
+        x = random.randint(1, 5)  # generate random int between 1 and 4
+        if (x == 1):
+            if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
+                return "You have more money than the average American has in the bank (> $3,400)"
+            else:
+                return "You have less money than the average American has in the bank (> $3,400)"
+        elif (x == 2):
+            if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
+                return "The average american spends $5,102 in a month. Your budget is currently more than that"
+            else:
+                return "The average american spends $5,102 in a month. Your budget is currently less than that"
+        elif (x == 3):
+            return "Are you taking into consideration your retirement plan?"
+        elif (x == 4):
+            return "Only 30% of American households have a long-term financial plan"
 
 class BMAdjustBalance(tk.Frame): #Adjust balance
     def __init__(self, parent, controller):
@@ -1092,7 +1095,6 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
-
         def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
             app.frames["BudgetManagerHomePage"].destroy()
             app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
@@ -1106,9 +1108,46 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
         entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
         button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_budget(new_budget_var), updateBudgetManagerHomePage(),
-                                            controller.show_frame("BudgetManagerHomePage")])
+                           command=lambda: [check_valid_input(new_budget_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_budget_var):
+            try:
+                print("i will now test the .get()")
+                budget = new_budget_var.get()
+                print("new_budget_var succeeds the .get call")
+                if budget < 0:
+                    print("budget is number but is negative")
+                    raise ValueError('budget is number but is negative')
+                print("I got past the if statement")
+                budget = round(budget, 2)  # Rounds budget to 2 decimal places
+                global new_budget
+                new_budget = budget
+                # Now update profiles.json with new balance
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["budget"] = new_budget
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            except:
+                print("invalid new_budget_var inputted")
+                for widget in BMAdjustBudget.winfo_children(self):
+                    widget.destroy()
+                label1 = tk.Label(self, text="Please enter a valid budget")
+                label1.pack()
+                new_budget_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_budget_var)
+                entry.pack()
+                button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+                button1.pack()
+
 
 class BMEnterDeposit(tk.Frame): #Enter a deposit
 
