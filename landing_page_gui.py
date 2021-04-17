@@ -408,9 +408,6 @@ class PageFour(tk.Frame): # Register a new profile (Enter budget)
                     json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
 
 
-
-
-
 class PageFive(tk.Frame): # Registration Successful
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -988,7 +985,10 @@ class BudgetManagerHomePage(tk.Frame):
             app.frames["BMBudgetHistory"].destroy()
             app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
             app.frames["BMBudgetHistory"].grid(row=0, column=0, sticky="nsew")
-
+        def updateBMAdjustBalance():
+            app.frames["BMAdjustBalance"].destroy()
+            app.frames["BMAdjustBalance"] = BMAdjustBalance(parent, controller)
+            app.frames["BMAdjustBalance"].grid(row=0, column=0, sticky="nsew")
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Budget Manager")
@@ -1007,7 +1007,7 @@ class BudgetManagerHomePage(tk.Frame):
             label.pack(side="top", fill="x", pady=10)
 
         button1 = tk.Button(self, text="Adjust total balance",
-                            command=lambda: controller.show_frame("BMAdjustBalance"))
+                            command=lambda: [updateBMAdjustBalance(), controller.show_frame("BMAdjustBalance")])
         button2 = tk.Button(self, text="Adjust budget",
                             command=lambda: controller.show_frame("BMAdjustBudget"))
         button3 = tk.Button(self, text="Enter a deposit",
@@ -1024,30 +1024,8 @@ class BudgetManagerHomePage(tk.Frame):
         button5.pack()
         button7.pack()
 
-
 class BMAdjustBalance(tk.Frame): #Adjust balance
-
-    def store_balance(self, new_balance_var):
-        bal = new_balance_var.get()
-        print("new_balance_var is:", bal)
-        global new_balance
-        new_balance = bal
-        # Now update profiles.json with new balance
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["total_balance"] = new_balance
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
-
-        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
-            app.frames["BudgetManagerHomePage"].destroy()
-            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
-            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
-
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="Please enter your new balance")
@@ -1055,10 +1033,47 @@ class BMAdjustBalance(tk.Frame): #Adjust balance
         new_balance_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
-        button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_balance(new_balance_var), updateBudgetManagerHomePage(),
-                                            controller.show_frame("BudgetManagerHomePage")])
+        button = tk.Button(self, text="Done", command=lambda: [check_valid_input(new_balance_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_balance_var):
+            try:
+                balance = new_balance_var.get()
+                if balance < 0:
+                    print("balance is number but is negative")
+                    raise ValueError('balance is number but is negative')
+                balance = round(balance, 2) #Rounds balance to 2 decimal places
+                global new_balance
+                new_balance = balance
+                # Now update profiles.json with new balance
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["total_balance"] = new_balance
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            except:
+                print("invalid new_balance_var inputted - running except code")
+                for widget in BMAdjustBalance.winfo_children(self):
+                    widget.destroy()
+                label1 = tk.Label(self, text="Please enter a valid balance")
+                label1.pack()
+                new_balance_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+                entry.pack()
+                button = tk.Button(self, text="Done", command=lambda: [check_valid_input(new_balance_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+                button1.pack()
+
+        def updateBudgetManagerHomePage():
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
 
 class BMAdjustBudget(tk.Frame): #Adjust budget
 
@@ -1098,7 +1113,6 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
 class BMEnterDeposit(tk.Frame): #Enter a deposit
 
     def store_deposit_info(self, new_depositname_var, new_depositvalue_var, new_depositdate_var):
-
         depositname = new_depositname_var.get()
         print("new_depositname_var is:", depositname)
         global new_depositname
@@ -1127,7 +1141,6 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
     def __init__(self, parent, controller):
-
         def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
             app.frames["BudgetManagerHomePage"].destroy()
             app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
