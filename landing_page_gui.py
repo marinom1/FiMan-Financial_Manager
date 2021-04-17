@@ -1003,17 +1003,17 @@ class BudgetManagerHomePage(tk.Frame):
             label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
             label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Adjust total balance",
+        button1 = tk.Button(self, width=18,text="Adjust total balance",
                             command=lambda: [updateBMAdjustBalance(), controller.show_frame("BMAdjustBalance")])
-        button2 = tk.Button(self, text="Adjust budget",
+        button2 = tk.Button(self, width=18, text="Adjust budget",
                             command=lambda: [updateBMAdjustBudget(), controller.show_frame("BMAdjustBudget")])
-        button3 = tk.Button(self, text="Enter a deposit",
+        button3 = tk.Button(self, width=18, text="Enter a deposit",
                             command=lambda: [updateBMEnterDeposit(), controller.show_frame("BMEnterDeposit")])
-        button4 = tk.Button(self, text="Enter an expense",
+        button4 = tk.Button(self, width=18, text="Enter an expense",
                             command=lambda: [updateBMEnterExpense(), controller.show_frame("BMEnterExpense")])
-        button5 = tk.Button(self, text="View full budget history",
+        button5 = tk.Button(self, width=18, text="View full budget history",
                             command=lambda: [updateBMBudgetHistory(), controller.show_frame("BMBudgetHistory")])
-        button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
+        button7 = tk.Button(self, width=18, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
         button1.pack()
         button2.pack()
         button3.pack()
@@ -1284,10 +1284,10 @@ class BMEnterExpense(tk.Frame): #Enter an expense
         new_expensedate_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_expensedate_var)
         entry.pack()
-        button = tk.Button(self, text="Confirm",
+        button = tk.Button(self, width=12, text="Confirm",
                            command=lambda: [check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1 = tk.Button(self, width=12, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
         button1.pack()
 
         def check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var): # Checks all 3 fields
