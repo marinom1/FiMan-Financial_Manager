@@ -88,16 +88,28 @@ class FiMan(tk.Tk):
 
 class StartPage(tk.Frame): # Welcome to FiMan
     def __init__(self, parent, controller):
+
+        def updatePageOne():
+            app.frames["PageOne"].destroy()
+            app.frames["PageOne"] = PageOne(parent, controller)
+            app.frames["PageOne"].grid(row=0, column=0, sticky="nsew")
+
+        def updatePageSix(): # Removes need for refresh button on PageSix
+            app.frames["PageSix"].destroy()
+            app.frames["PageSix"] = PageSix(parent, controller)
+            app.frames["PageSix"].grid(row=0, column=0, sticky="nsew")
+
         def exit_program():
             exit(0)
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
         label.pack(side="top", fill="x", pady=10)
 
-        button1 = tk.Button(self, text="Register", width=8, command=lambda: controller.show_frame("PageOne"))
+        button1 = tk.Button(self, text="Register", width=8, command=lambda: [updatePageOne(), controller.show_frame("PageOne")])
         button1.pack()
-        button2 = tk.Button(self, text="Login", width=8, command=lambda: controller.show_frame("PageSix"))
+        button2 = tk.Button(self, text="Login", width=8, command=lambda: [updatePageSix(), controller.show_frame("PageSix")])
         button2.pack()
         button3 = tk.Button(self, text="Exit", width=8, command=lambda: exit_program())
         button3.pack()
@@ -105,20 +117,33 @@ class StartPage(tk.Frame): # Welcome to FiMan
 class PageOne(tk.Frame): # Register a new profile (Enter name)
     def __init__(self, parent, controller):
         def check_name(new_name_var):
+            nameAlreadyTaken = False
             name = new_name_var.get()
-            if (name.isspace()) or (name == ""): # invalid name
+            listOfExistingProfileNames = []
+            if there_are_existing_profiles:
+                for i in range(len(loaded_profiles["profiles"])):
+                    listOfExistingProfileNames.append(loaded_profiles["profiles"][i]["name"])
+            if name in listOfExistingProfileNames:
+                nameAlreadyTaken = True
+            if (name.isspace()) or (name == "") or (nameAlreadyTaken == True): # invalid name
                 # Destroy the existing stuff
                 for widget in PageFour.winfo_children(self):
                     widget.destroy()
                 label = tk.Label(self, text="Step 1 of 4", font=controller.title_font)
                 label.pack(side="top", fill="x", pady=10)
-                label1 = tk.Label(self, text="Please enter a VALID name")
-                label1.pack()
+                if (name.isspace() or name == ""):
+                    label1 = tk.Label(self, text="Please enter a VALID name - That name is blank")
+                    label1.pack()
+                elif nameAlreadyTaken == True:
+                    label1 = tk.Label(self, text="Please enter a VALID name - That name is already taken")
+                    label1.pack()
                 new_name_var = tk.StringVar()
                 entry = tk.Entry(self, width=15, textvariable=new_name_var)
                 entry.pack()
                 button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
                 button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
             else: #valid input, store their name and move to next registration step
                 print("new_name_var is:", name)
                 global new_name
@@ -136,8 +161,11 @@ class PageOne(tk.Frame): # Register a new profile (Enter name)
         entry.pack()
         button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageTwo(tk.Frame): # Register a new profile (Choose Features)
+
     def store_details(self, feature1_var, feature2_var):
         print("Is feature 1 checked off:",feature1_var.get())
         print("Is feature 2 checked off:", feature2_var.get())
@@ -145,7 +173,6 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         new_enabled_features = []
         print("type of new_enabled_features is:",type(new_enabled_features))
         if feature1_var.get():
-            print("Does this run")
             new_enabled_features.append("1")
         if feature2_var.get():
             new_enabled_features.append("2")
@@ -153,6 +180,62 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         print("new_enabled_features is:", new_enabled_features)
 
     def __init__(self, parent, controller):
+        def check_valid_input(self, feature1_var, feature2_var):
+            self.store_details(feature1_var, feature2_var)
+            if not new_enabled_features: #If user didnt select any features
+                # Destroy the existing stuff
+                for widget in PageTwo.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 2 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+
+                # Budget Manager descriptions
+                label1 = tk.Label(self, text="1. The Budget Manager allows users to:")
+                label1.pack()
+                label2 = tk.Label(self, text="- Set their current balance")
+                label2.pack()
+                label3 = tk.Label(self, text="- Set a target balance")
+                label3.pack()
+                label4 = tk.Label(self, text="- View helpful financial notifications")
+                label4.pack()
+                label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
+                label5.pack()
+                labelSpace = tk.Label(self, text="")
+                labelSpace.pack()
+                # Stock Market tool descriptions
+                label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
+                label6.pack()
+                label7 = tk.Label(self,
+                                  text="- Select a sector to focus on that will filter for news that is specific to that sector")
+                label7.pack()
+                label8 = tk.Label(self, text="- Allow users to view a list of stocks and their recent performance")
+                label8.pack()
+                label9 = tk.Label(self,
+                                  text="- Allows users to view a news feed regarding recent events in the general stock market")
+                label9.pack()
+                labelSpace = tk.Label(self, text="")
+                labelSpace.pack()
+                # End of descriptions
+                label10 = tk.Label(self,
+                                   text="CHECK OFF AT LEAST 1 BOX - Please check off the features you would like to enable (Can change later)")
+                label10.pack()
+
+                # Checkboxes
+                feature1_var = tk.IntVar()
+                feature2_var = tk.IntVar()
+                checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
+                checkbutton1.pack()
+                checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
+                checkbutton2.pack()
+
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+            else:  # Valid user input
+                controller.show_frame("PageThree")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Step 2 of 4", font=controller.title_font)
@@ -169,10 +252,8 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         label4.pack()
         label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
         label5.pack()
-
         labelSpace = tk.Label(self, text="")
         labelSpace.pack()
-
         # Stock Market tool descriptions
         label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
         label6.pack()
@@ -182,10 +263,8 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         label8.pack()
         label9 = tk.Label(self, text="- Allows users to view a news feed regarding recent events in the general stock market")
         label9.pack()
-
         labelSpace = tk.Label(self, text="")
         labelSpace.pack()
-
         # End of descriptions
         label10 = tk.Label(self, text="Please check off the features you would like to enable (Can change later)")
         label10.pack()
@@ -198,16 +277,12 @@ class PageTwo(tk.Frame): # Register a new profile (Choose Features)
         checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
-        button = tk.Button(self, text="Next", command=lambda: [ self.store_details(feature1_var,feature2_var), controller.show_frame("PageThree")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
 
 class PageThree(tk.Frame): # Register a new profile (Enter balance)
-    def print_balance(self, new_balance_var):
-        balance = new_balance_var.get()
-        print("new_name_var is:", balance)
-        global new_balance
-        new_balance = balance
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -218,52 +293,39 @@ class PageThree(tk.Frame): # Register a new profile (Enter balance)
         new_balance_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), controller.show_frame("PageFour")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_balance_var), ])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
+
+        def check_valid_input(new_balance_var):
+            try:
+                balance = new_balance_var.get()
+                if balance < 0:
+                    print("balance is number but is negative")
+                    raise ValueError('balance is number but is negative')
+                balance = round(balance, 2) #Rounds balance to 2 decimal places
+                global new_balance
+                new_balance = balance
+                controller.show_frame("PageFour")
+            except:
+                print("invalid new_balance_var inputted")
+                for widget in PageThree.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 3 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+                label1 = tk.Label(self, text="Please enter a valid balance")
+                label1.pack()
+                new_balance_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+                entry.pack()
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(new_balance_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
 
 class PageFour(tk.Frame): # Register a new profile (Enter budget)
-    def print_balance(self, new_budget_var):
-        budget = new_budget_var.get()
-        print("new_name_var is:", budget)
-        global new_budget
-        new_budget = budget
-
-    def write_new_profile_to_file(self):
-        """Make the new profile official in profiles.json"""
-        global new_name
-        global new_enabled_features
-        global new_balance
-        global new_budget
-        # if there aren't any existing profiles in profiles.json
-        if there_are_existing_profiles == False:
-            # Must create the json object from scratch first since it does not exist yet
-            data = {}
-            data['profiles'] = []
-            data['profiles'].append({
-                'name': new_name,
-                'features': new_enabled_features,
-                'total_balance': new_balance,
-                'budget': new_budget,
-                'deposits': [],
-                'expenses': []
-            })
-            with open('profiles.json', 'w') as outfile:
-                json.dump(data, outfile, indent=2, sort_keys=False)
-
-        # else if there are already existing profiles in profiles.json
-        elif there_are_existing_profiles == True:
-            # Simply append the new profile data to the profiles.json file
-            loaded_profiles['profiles'].append({
-                'name': new_name,
-                'features': new_enabled_features,
-                'total_balance': new_balance,
-                'budget': new_budget,
-                'deposits': [],
-                'expenses': []
-            })
-            with open('profiles.json', 'w') as outfile:
-                json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -271,11 +333,81 @@ class PageFour(tk.Frame): # Register a new profile (Enter budget)
         label.pack(side="top", fill="x", pady=10)
         label1 = tk.Label(self, text="Please enter your budget")
         label1.pack()
-        new_balance_var = tk.DoubleVar()
-        entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+        new_budget_var = tk.DoubleVar()
+        entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.print_balance(new_balance_var), self.write_new_profile_to_file(), controller.show_frame("PageFive")])
+        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1.pack()
+
+        def check_valid_input(new_budget_var):
+            try:
+                print("i will now test the .get()")
+                budget = new_budget_var.get()
+                print("new_budget_var succeeds the .get call")
+                if budget < 0:
+                    print("budget is number but is negative")
+                    raise ValueError('budget is number but is negative')
+                print("I got past the if statement")
+                budget = round(budget, 2)  # Rounds budget to 2 decimal places
+                global new_budget
+                new_budget = budget
+                write_new_profile_to_file()
+                controller.show_frame("PageFive")
+            except:
+                print("invalid new_budget_var inputted")
+                for widget in PageThree.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="Step 4 of 4", font=controller.title_font)
+                label.pack(side="top", fill="x", pady=10)
+                label1 = tk.Label(self, text="Please enter a valid budget")
+                label1.pack()
+                new_budget_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_budget_var)
+                entry.pack()
+                button = tk.Button(self, text="Next",
+                                   command=lambda: [check_valid_input(new_budget_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
+        def write_new_profile_to_file():
+            """Make the new profile official in profiles.json"""
+            global new_name
+            global new_enabled_features
+            global new_balance
+            global new_budget
+            # if there aren't any existing profiles in profiles.json
+            if there_are_existing_profiles == False:
+                # Must create the json object from scratch first since it does not exist yet
+                data = {}
+                data['profiles'] = []
+                data['profiles'].append({
+                    'name': new_name,
+                    'features': new_enabled_features,
+                    'total_balance': new_balance,
+                    'budget': new_budget,
+                    'deposits': [],
+                    'expenses': []
+                })
+                with open('profiles.json', 'w') as outfile:
+                    json.dump(data, outfile, indent=2, sort_keys=False)
+
+            # else if there are already existing profiles in profiles.json
+            elif there_are_existing_profiles == True:
+                # Simply append the new profile data to the profiles.json file
+                loaded_profiles['profiles'].append({
+                    'name': new_name,
+                    'features': new_enabled_features,
+                    'total_balance': new_balance,
+                    'budget': new_budget,
+                    'deposits': [],
+                    'expenses': []
+                })
+                with open('profiles.json', 'w') as outfile:
+                    json.dump(loaded_profiles, outfile, indent=2, sort_keys=False)
+
 
 class PageFive(tk.Frame): # Registration Successful
     def __init__(self, parent, controller):
@@ -292,17 +424,8 @@ class PageFive(tk.Frame): # Registration Successful
 class PageSix(tk.Frame): # Login to Existing Profile
     def __init__(self, parent, controller):
         def get_profile_ID(i):
-            print("Profile ID in Login to Existing Profile is:",i)
             global current_profile_ID
             current_profile_ID = i
-            print("The current_profile_ID is:", current_profile_ID)
-
-        def refresh_profiles():
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            # Destroy the existing stuff
-            for widget in PageFour.winfo_children(self):
-                widget.destroy()
-
             label = tk.Label(self, text="Please select your profile", font=controller.title_font)
             label.pack(side="top", fill="x", pady=10)
             if there_are_existing_profiles:
@@ -315,9 +438,6 @@ class PageSix(tk.Frame): # Login to Existing Profile
             else:
                 label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first", font=controller.title_font)
                 label2.pack(side="top", fill="x", pady=10)
-            button1 = tk.Button(self, text="Click here to refresh profiles",
-                                command=lambda: [refresh_profiles()])
-            button1.pack()
             button2 = tk.Button(self, text="Back", width=8,
                                 command=lambda: controller.show_frame("StartPage"))
             button2.pack()
@@ -339,8 +459,6 @@ class PageSix(tk.Frame): # Login to Existing Profile
             label2 = tk.Label(self, text="No existing profiles...\nPlease register a profile first",
                               font=controller.title_font)
             label2.pack(side="top", fill="x", pady=10)
-        button1 = tk.Button(self, text="Click here to refresh profiles", command=lambda: [refresh_profiles()])
-        button1.pack()
         button2 = tk.Button(self, text="Back", width=8,
                                        command=lambda: controller.show_frame("StartPage"))
         button2.pack()
@@ -371,6 +489,12 @@ class PageEight(tk.Frame): # Home Page
     def __init__(self, parent, controller):
         var = tk.StringVar()
         var.set("")
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         def show_profile_details():
             there_are_existing_profiles, loaded_profiles = load_existing_profiles()
             var.set(loaded_profiles["profiles"][current_profile_ID])
@@ -382,7 +506,7 @@ class PageEight(tk.Frame): # Home Page
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
 
-        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: controller.show_frame("BudgetManagerHomePage"))
+        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
         button1.pack()
         button2 = tk.Button(self, text="Stock Market", width=17, command=lambda: controller.show_frame("StockMarketHomePage"))
         button2.pack()
@@ -413,20 +537,6 @@ class PageNine(tk.Frame): # Settings - Michael
         button3.pack()
 
 class PageTen(tk.Frame): # Settings - Change Name
-    def store_name(self, new_name_var):
-        name = new_name_var.get()
-        print("new_name_var is:", name)
-        global new_name
-        new_name = name
-        # Now update profiles.json with new name
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["name"] = new_name
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -435,8 +545,52 @@ class PageTen(tk.Frame): # Settings - Change Name
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [self.store_name(new_name_var), controller.show_frame("PageEleven")])
+        button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+        button1.pack()
+
+        def store_name(new_name_var):
+            nameAlreadyTaken = False
+            name = new_name_var.get()
+            listOfExistingProfileNames = []
+            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+            for i in range(len(loaded_profiles["profiles"])):
+                listOfExistingProfileNames.append(loaded_profiles["profiles"][i]["name"])
+            global new_name
+            new_name = name
+            if name in listOfExistingProfileNames:
+                print("Namealreadytaken: ", nameAlreadyTaken)
+                nameAlreadyTaken = True
+            if name.isspace() or name == "" or nameAlreadyTaken:  # invalid
+                print("name was space or blank")
+                # Destroy the existing stuff
+                for widget in PageTwo.winfo_children(self):
+                    widget.destroy()
+                if name.isspace() or name == "":
+                    label1 = tk.Label(self, text="Please enter non blank name")
+                    label1.pack()
+                elif nameAlreadyTaken:
+                    label1 = tk.Label(self, text="Please choose another name - name already taken")
+                    label1.pack()
+                new_name_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_name_var)
+                entry.pack()
+                button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                button1.pack()
+            else: #Valid
+                # Now update profiles.json with new name
+                print("Valid name")
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["name"] = new_name
+
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                controller.show_frame("PageEleven")
 
 class PageEleven(tk.Frame): # Name change Successful
     def __init__(self, parent, controller):
@@ -449,12 +603,6 @@ class PageEleven(tk.Frame): # Name change Successful
 
 class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
         def store_details(self, feature1_var, feature2_var):
-            global new_enabled_features
-            new_enabled_features = []
-            if feature1_var.get():
-                new_enabled_features.append("1")
-            if feature2_var.get():
-                new_enabled_features.append("2")
             # Now update profiles.json with new features
             with open('profiles.json', "r+") as file:
                 loaded_profiles = json.load(file)
@@ -464,6 +612,69 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
                 json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
         def __init__(self, parent, controller):
+
+            def check_valid_input(self, feature1_var, feature2_var):
+                global new_enabled_features
+                new_enabled_features = []
+                if feature1_var.get():
+                    new_enabled_features.append("1")
+                if feature2_var.get():
+                    new_enabled_features.append("2")
+                if not new_enabled_features:  # If user didnt select any features
+                    # Destroy the existing stuff
+                    for widget in PageTwo.winfo_children(self):
+                        widget.destroy()
+                    label = tk.Label(self, text="Change Features", font=controller.title_font)
+                    label.pack(side="top", fill="x", pady=10)
+
+                    # Budget Manager descriptions
+                    label1 = tk.Label(self, text="1. The Budget Manager allows users to:")
+                    label1.pack()
+                    label2 = tk.Label(self, text="- Set their current balance")
+                    label2.pack()
+                    label3 = tk.Label(self, text="- Set a target balance")
+                    label3.pack()
+                    label4 = tk.Label(self, text="- View helpful financial notifications")
+                    label4.pack()
+                    label5 = tk.Label(self, text="- Keep track of deposits, withdrawals, and recurring expenses")
+                    label5.pack()
+                    labelSpace = tk.Label(self, text="")
+                    labelSpace.pack()
+                    # Stock Market tool descriptions
+                    label6 = tk.Label(self, text="2. The Stock Market Tool allows users to:")
+                    label6.pack()
+                    label7 = tk.Label(self,
+                                      text="- Select a sector to focus on that will filter for news that is specific to that sector")
+                    label7.pack()
+                    label8 = tk.Label(self, text="- Allow users to view a list of stocks and their recent performance")
+                    label8.pack()
+                    label9 = tk.Label(self,
+                                      text="- Allows users to view a news feed regarding recent events in the general stock market")
+                    label9.pack()
+                    labelSpace = tk.Label(self, text="")
+                    labelSpace.pack()
+                    # End of descriptions
+                    label10 = tk.Label(self,
+                                       text="CHECK OFF AT LEAST 1 BOX - Please check off the features you would like to enable (Can change later)")
+                    label10.pack()
+
+                    # Checkboxes
+                    feature1_var = tk.IntVar()
+                    feature2_var = tk.IntVar()
+                    checkbutton1 = tk.Checkbutton(self, text="Budget Manager", variable=feature1_var)
+                    checkbutton1.pack()
+                    checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
+                    checkbutton2.pack()
+
+                    button = tk.Button(self, text="Next",
+                                       command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                    button.pack()
+                    button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                    button1.pack()
+                else:  # Valid user input
+                    self.store_details(feature1_var, feature2_var)
+                    controller.show_frame("PageThirteen")
+
             tk.Frame.__init__(self, parent)
             self.controller = controller
             label = tk.Label(self, text="Change Features", font=controller.title_font)
@@ -506,7 +717,7 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
             checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
             checkbutton2.pack()
 
-            button = tk.Button(self, text="Next", command=lambda: [self.store_details(feature1_var, feature2_var), controller.show_frame("PageThirteen")])
+            button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
             button.pack()
 
 class PageThirteen(tk.Frame): # Enabled Features Change Successful
@@ -750,6 +961,74 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 """END OF STOCK MARKET SECTION"""
 
 class BudgetManagerHomePage(tk.Frame):
+    def __init__(self, parent, controller):
+
+
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label = tk.Label(self, text="Budget Manager")
+        label.pack(side="top", fill="x", pady=10)
+        global there_are_existing_profiles
+        global loaded_profiles
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
+        if (there_are_existing_profiles):
+            label = tk.Label(self, text="Your current balance is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text="Your current budget is:")
+            label.pack(side="top", fill="x", pady=10)
+            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
+            label.pack(side="top", fill="x", pady=10)
+
+        button1 = tk.Button(self, width=18,text="Adjust total balance",
+                            command=lambda: [updateBMAdjustBalance(), controller.show_frame("BMAdjustBalance")])
+        button2 = tk.Button(self, width=18, text="Adjust budget",
+                            command=lambda: [updateBMAdjustBudget(), controller.show_frame("BMAdjustBudget")])
+        button3 = tk.Button(self, width=18, text="Enter a deposit",
+                            command=lambda: [updateBMEnterDeposit(), controller.show_frame("BMEnterDeposit")])
+        button4 = tk.Button(self, width=18, text="Enter an expense",
+                            command=lambda: [updateBMEnterExpense(), controller.show_frame("BMEnterExpense")])
+        button5 = tk.Button(self, width=18, text="View full budget history",
+                            command=lambda: [updateBMBudgetHistory(), controller.show_frame("BMBudgetHistory")])
+        button7 = tk.Button(self, width=18, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
+        button1.pack()
+        button2.pack()
+        button3.pack()
+        button4.pack()
+        button5.pack()
+        button7.pack()
+
+        #Show a notification
+        label0 = tk.Label(self, text="")
+        label0.pack(side="top", fill="x", pady=10)
+        label1 = tk.Label(self, text=self.notification())
+        label1.pack(side="top", fill="x", pady=10)
+
+        def updateBMBudgetHistory():
+            app.frames["BMBudgetHistory"].destroy()
+            app.frames["BMBudgetHistory"] = BMBudgetHistory(parent, controller)
+            app.frames["BMBudgetHistory"].grid(row=0, column=0, sticky="nsew")
+        def updateBMAdjustBalance():
+            app.frames["BMAdjustBalance"].destroy()
+            app.frames["BMAdjustBalance"] = BMAdjustBalance(parent, controller)
+            app.frames["BMAdjustBalance"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMAdjustBudget():
+            app.frames["BMAdjustBudget"].destroy()
+            app.frames["BMAdjustBudget"] = BMAdjustBudget(parent, controller)
+            app.frames["BMAdjustBudget"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMEnterDeposit():
+            app.frames["BMEnterDeposit"].destroy()
+            app.frames["BMEnterDeposit"] = BMEnterDeposit(parent, controller)
+            app.frames["BMEnterDeposit"].grid(row=0, column=0, sticky="nsew")
+
+        def updateBMEnterExpense():
+            app.frames["BMEnterExpense"].destroy()
+            app.frames["BMEnterExpense"] = BMEnterExpense(parent, controller)
+            app.frames["BMEnterExpense"].grid(row=0, column=0, sticky="nsew")
+
 
     def notification(self):
         x = random.randint(1, 5)  # generate random int between 1 and 4
@@ -768,97 +1047,7 @@ class BudgetManagerHomePage(tk.Frame):
         elif (x == 4):
             return "Only 30% of American households have a long-term financial plan"
 
-    def __init__(self, parent, controller):
-        def refresh():
-            print("Does this print 1")
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            # Destroy the existing stuff
-            for widget in BudgetManagerHomePage.winfo_children(self):
-                widget.destroy()
-            label = tk.Label(self, text="Budget Manager")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text="Your current balance is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text="Your current budget is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
-            label.pack(side="top", fill="x", pady=10)
-
-            button1 = tk.Button(self, text="Adjust total balance",
-                                command=lambda: controller.show_frame("BMAdjustBalance"))
-            button2 = tk.Button(self, text="Adjust budget",
-                                command=lambda: controller.show_frame("BMAdjustBudget"))
-            button3 = tk.Button(self, text="Enter a deposit",
-                                command=lambda: controller.show_frame("BMEnterDeposit"))
-            button4 = tk.Button(self, text="Enter an expense",
-                                command=lambda: controller.show_frame("BMEnterExpense"))
-            button5 = tk.Button(self, text="View full budget history",
-                                command=lambda: controller.show_frame("BMBudgetHistory"))
-            button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
-            button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
-            button1.pack()
-            button2.pack()
-            button3.pack()
-            button4.pack()
-            button5.pack()
-            button7.pack()
-            button8.pack()
-
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        label = tk.Label(self, text="Budget Manager")
-        label.pack(side="top", fill="x", pady=10)
-        if (there_are_existing_profiles):
-            label = tk.Label(self, text="Your current balance is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["total_balance"])
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text="Your current budget is:")
-            label.pack(side="top", fill="x", pady=10)
-            label = tk.Label(self, text=loaded_profiles["profiles"][current_profile_ID]["budget"])
-            label.pack(side="top", fill="x", pady=10)
-
-        button1 = tk.Button(self, text="Adjust total balance",
-                            command=lambda: controller.show_frame("BMAdjustBalance"))
-        button2 = tk.Button(self, text="Adjust budget",
-                            command=lambda: controller.show_frame("BMAdjustBudget"))
-        button3 = tk.Button(self, text="Enter a deposit",
-                            command=lambda: controller.show_frame("BMEnterDeposit"))
-        button4 = tk.Button(self, text="Enter an expense",
-                            command=lambda: controller.show_frame("BMEnterExpense"))
-        button5 = tk.Button(self, text="View full budget history",
-                            command=lambda: controller.show_frame("BMBudgetHistory"))
-        button7 = tk.Button(self, text="Exit Budget Manager", command=lambda: controller.show_frame("PageEight"))
-        button8 = tk.Button(self, text="Refresh", command=lambda: refresh())
-        button1.pack()
-        button2.pack()
-        button3.pack()
-        button4.pack()
-        button5.pack()
-        button7.pack()
-        button8.pack()
-
-        # label = tk.Label(self, text= "notification")
-        # label.pack(side="top", fill="x", pady=10)
-
-class BMAdjustBalance(tk.Frame): #Adjust total balance
-
-    def store_balance(self, new_balance_var):
-        bal = new_balance_var.get()
-        print("new_balance_var is:", bal)
-        global new_balance
-        new_balance = bal
-        # Now update profiles.json with new balance
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["total_balance"] = new_balance
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
+class BMAdjustBalance(tk.Frame): #Adjust balance
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -867,28 +1056,55 @@ class BMAdjustBalance(tk.Frame): #Adjust total balance
         new_balance_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
-        button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_balance(new_balance_var),
-                                            controller.show_frame("BudgetManagerHomePage")])
+        button = tk.Button(self, text="Done", command=lambda: [check_valid_input(new_balance_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_balance_var):
+            try:
+                balance = new_balance_var.get()
+                if balance < 0:
+                    print("balance is number but is negative")
+                    raise ValueError('balance is number but is negative')
+                balance = round(balance, 2) #Rounds balance to 2 decimal places
+                global new_balance
+                new_balance = balance
+                # Now update profiles.json with new balance
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["total_balance"] = new_balance
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            except:
+                print("invalid new_balance_var inputted - running except code")
+                for widget in BMAdjustBalance.winfo_children(self):
+                    widget.destroy()
+                label1 = tk.Label(self, text="Please enter a valid balance")
+                label1.pack()
+                new_balance_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_balance_var)
+                entry.pack()
+                button = tk.Button(self, text="Done", command=lambda: [check_valid_input(new_balance_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+                button1.pack()
+
+        def updateBudgetManagerHomePage():
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
 
 class BMAdjustBudget(tk.Frame): #Adjust budget
-
-    def store_budget(self, new_budget_var):
-        budget = new_budget_var.get()
-        print("new_budget_var is:", budget)
-        global new_budget
-        new_budget = budget
-        # Now update profiles.json with new budget
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["budget"] = new_budget
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label1 = tk.Label(self, text="Please enter your new budget")
@@ -897,20 +1113,146 @@ class BMAdjustBudget(tk.Frame): #Adjust budget
         entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
         button = tk.Button(self, text="Done",
-                           command=lambda: [self.store_budget(new_budget_var),
-                                            controller.show_frame("BudgetManagerHomePage")])
+                           command=lambda: [check_valid_input(new_budget_var)])
         button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_budget_var):
+            try:
+                print("i will now test the .get()")
+                budget = new_budget_var.get()
+                print("new_budget_var succeeds the .get call")
+                if budget < 0:
+                    print("budget is number but is negative")
+                    raise ValueError('budget is number but is negative')
+                print("I got past the if statement")
+                budget = round(budget, 2)  # Rounds budget to 2 decimal places
+                global new_budget
+                new_budget = budget
+                # Now update profiles.json with new balance
+                with open('profiles.json', "r+") as file:
+                    loaded_profiles = json.load(file)
+                    loaded_profiles["profiles"][current_profile_ID]["budget"] = new_budget
+                os.remove("profiles.json")
+                with open("profiles.json", "w") as file:
+                    json.dump(loaded_profiles, file, indent=2, sort_keys=False)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            except:
+                print("invalid new_budget_var inputted")
+                for widget in BMAdjustBudget.winfo_children(self):
+                    widget.destroy()
+                label1 = tk.Label(self, text="Please enter a valid budget")
+                label1.pack()
+                new_budget_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_budget_var)
+                entry.pack()
+                button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+                button1.pack()
 
 class BMEnterDeposit(tk.Frame): #Enter a deposit
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        label1 = tk.Label(self, text="What is the deposit?")
+        label1.pack()
+        new_depositname_var = tk.StringVar()
+        entry = tk.Entry(self, width=15, textvariable=new_depositname_var)
+        entry.pack()
+        label2 = tk.Label(self, text="Enter in the monetary amount")
+        label2.pack()
+        new_depositvalue_var = tk.DoubleVar()
+        entry = tk.Entry(self, width=15, textvariable=new_depositvalue_var)
+        entry.pack()
+        label3 = tk.Label(self, text="Enter in the date of deposit")
+        label3.pack()
+        new_depositdate_var = tk.StringVar()
+        entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
+        entry.pack()
+        button = tk.Button(self, text="Confirm",
+                           command=lambda: [check_valid_input(new_depositname_var,new_depositvalue_var,new_depositdate_var)])
+        button.pack()
+        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_depositname_var, new_depositvalue_var, new_depositdate_var): # Checks all 3 fields
+            valid_name = False
+            valid_amount = False
+            valid_date = False
+            # First check name
+            try:
+                name = new_depositname_var.get()
+                if name.isspace() or name == "":
+                    print("Invalid name - it's blank")
+                    raise ValueError("Invalid name - it's blank")
+                valid_name = True
+            except:
+                print("Invalid name")
+
+            # Second, check value
+            try:
+                value = new_depositvalue_var.get()
+                if value < 0:
+                    print("Invalid value - it's negative")
+                    raise ValueError("Invalid value - it is negative")
+                valid_amount = True
+            except:
+                print("Invalid value")
+
+            # Third, check date (should not be empty)
+            date = new_depositdate_var.get()
+            if date.isspace() or date == "":
+                print("Date is blank - BAD")
+            else:
+                valid_date = True
+
+            # Now check if all 3 conditions are true
+            if valid_name and valid_amount and valid_date: # All Valid!
+                self.store_deposit_info(new_depositname_var, new_depositvalue_var, new_depositdate_var)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            else: # One or more invalid
+                for widget in BMEnterDeposit.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="One or more inputs invalid - try again")
+                label.pack()
+                label1 = tk.Label(self, text="What is the deposit?")
+                label1.pack()
+                new_depositname_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositname_var)
+                entry.pack()
+                label2 = tk.Label(self, text="Enter in the monetary amount")
+                label2.pack()
+                new_depositvalue_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositvalue_var)
+                entry.pack()
+                label3 = tk.Label(self, text="Enter in the date of deposit")
+                label3.pack()
+                new_depositdate_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
+                entry.pack()
+                button = tk.Button(self, text="Confirm",
+                                   command=lambda: [check_valid_input(new_depositname_var, new_depositvalue_var,new_depositdate_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
 
     def store_deposit_info(self, new_depositname_var, new_depositvalue_var, new_depositdate_var):
-
         depositname = new_depositname_var.get()
         print("new_depositname_var is:", depositname)
         global new_depositname
         new_depositname = depositname
 
         depositvalue = new_depositvalue_var.get()
+        depositvalue = round(depositvalue, 2)
         print("new_depositvalue_var is:", depositvalue)
         global new_depositvalue
         new_depositvalue = depositvalue
@@ -932,59 +1274,7 @@ class BMEnterDeposit(tk.Frame): #Enter a deposit
         with open("profiles.json", "w") as file:
             json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        label1 = tk.Label(self, text="What is the deposit?")
-        label1.pack()
-        new_depositname_var = tk.StringVar()
-        entry = tk.Entry(self, width=15, textvariable=new_depositname_var)
-        entry.pack()
-        label2 = tk.Label(self, text="Enter in the monetary amount")
-        label2.pack()
-        new_depositvalue_var = tk.DoubleVar()
-        entry = tk.Entry(self, width=15, textvariable=new_depositvalue_var)
-        entry.pack()
-        label3 = tk.Label(self, text="Enter in the date of deposit")
-        label3.pack()
-        new_depositdate_var = tk.StringVar()
-        entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
-        entry.pack()
-        button = tk.Button(self, text="Confirm",
-                           command=lambda: [self.store_deposit_info(new_depositname_var,new_depositvalue_var,new_depositdate_var),
-                                            controller.show_frame("BudgetManagerHomePage")])
-        button.pack()
-
 class BMEnterExpense(tk.Frame): #Enter an expense
-    def store_expense_info(self, new_expensename_var, new_expensevalue_var, new_expensedate_var):
-        expensename = new_expensename_var.get()
-        print("new_expensename_var is:", expensename)
-        global new_expensename
-        new_expensename = expensename
-
-        expensevalue = new_expensevalue_var.get()
-        print("new_expensevalue_var is:", expensevalue)
-        global new_expensevalue
-        new_expensevalue = expensevalue
-
-        expensedate = new_expensedate_var.get()
-        print("new_expensedate_var is:", expensedate)
-        global new_expensedate
-        new_expensedate = expensedate
-
-        new_expense_info = [new_expensename, new_expensevalue, new_expensedate]
-
-        # Now update profiles.json with new expense
-        with open('profiles.json', "r+") as file:
-            loaded_profiles = json.load(file)
-            loaded_profiles["profiles"][current_profile_ID]["expenses"].append(new_expense_info)
-            loaded_profiles["profiles"][current_profile_ID]["total_balance"] -= new_expensevalue
-            loaded_profiles["profiles"][current_profile_ID]["budget"] -= new_expensevalue
-
-        os.remove("profiles.json")
-        with open("profiles.json", "w") as file:
-            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
-
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
@@ -1003,82 +1293,210 @@ class BMEnterExpense(tk.Frame): #Enter an expense
         new_expensedate_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_expensedate_var)
         entry.pack()
-        button = tk.Button(self, text="Confirm",
-                           command=lambda: [self.store_expense_info(new_expensename_var,new_expensevalue_var,new_expensedate_var),
-                                            controller.show_frame("BudgetManagerHomePage")])
+        button = tk.Button(self, width=12, text="Confirm",
+                           command=lambda: [check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var)])
         button.pack()
+        button1 = tk.Button(self, width=12, text="Cancel", command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+        button1.pack()
+
+        def check_valid_input(new_expensename_var, new_expensevalue_var, new_expensedate_var): # Checks all 3 fields
+            valid_name = False
+            valid_amount = False
+            valid_date = False
+            # First check name
+            try:
+                name = new_expensename_var.get()
+                if name.isspace() or name == "":
+                    print("Invalid name - it's blank")
+                    raise ValueError("Invalid name - it's blank")
+                valid_name = True
+            except:
+                print("Invalid name")
+
+            # Second, check value
+            try:
+                value = new_expensevalue_var.get()
+                if value < 0:
+                    print("Invalid value - it's negative")
+                    raise ValueError("Invalid value - it is negative")
+                valid_amount = True
+            except:
+                print("Invalid value")
+
+            # Third, check date (should not be empty)
+            date = new_expensedate_var.get()
+            if date.isspace() or date == "":
+                print("Date is blank - BAD")
+            else:
+                valid_date = True
+
+            # Now check if all 3 conditions are true
+            if valid_name and valid_amount and valid_date: # All Valid!
+                self.store_expense_info(new_expensename_var, new_expensevalue_var, new_expensedate_var)
+                updateBudgetManagerHomePage()
+                controller.show_frame("BudgetManagerHomePage")
+            else: # One or more invalid
+                for widget in BMEnterDeposit.winfo_children(self):
+                    widget.destroy()
+                label = tk.Label(self, text="One or more inputs invalid - try again")
+                label.pack()
+                label1 = tk.Label(self, text="What is the deposit?")
+                label1.pack()
+                new_depositname_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositname_var)
+                entry.pack()
+                label2 = tk.Label(self, text="Enter in the monetary amount")
+                label2.pack()
+                new_depositvalue_var = tk.DoubleVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositvalue_var)
+                entry.pack()
+                label3 = tk.Label(self, text="Enter in the date of deposit")
+                label3.pack()
+                new_depositdate_var = tk.StringVar()
+                entry = tk.Entry(self, width=15, textvariable=new_depositdate_var)
+                entry.pack()
+                button = tk.Button(self, text="Confirm",
+                                   command=lambda: [check_valid_input(new_depositname_var, new_depositvalue_var,new_depositdate_var)])
+                button.pack()
+                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1.pack()
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
+    def store_expense_info(self, new_expensename_var, new_expensevalue_var, new_expensedate_var):
+        expensename = new_expensename_var.get()
+        print("new_expensename_var is:", expensename)
+        global new_expensename
+        new_expensename = expensename
+
+        expensevalue = new_expensevalue_var.get()
+        expensevalue = round(expensevalue, 2)
+        print("new_expensevalue_var is:", expensevalue)
+        global new_expensevalue
+        new_expensevalue = expensevalue
+
+        expensedate = new_expensedate_var.get()
+        print("new_expensedate_var is:", expensedate)
+        global new_expensedate
+        new_expensedate = expensedate
+
+        new_expense_info = [new_expensename, new_expensevalue, new_expensedate]
+
+        # Now update profiles.json with new expense
+        with open('profiles.json', "r+") as file:
+            loaded_profiles = json.load(file)
+            loaded_profiles["profiles"][current_profile_ID]["expenses"].append(new_expense_info)
+            loaded_profiles["profiles"][current_profile_ID]["total_balance"] -= new_expensevalue
+            loaded_profiles["profiles"][current_profile_ID]["budget"] -= new_expensevalue
+        os.remove("profiles.json")
+        with open("profiles.json", "w") as file:
+            json.dump(loaded_profiles, file, indent=2, sort_keys=False)
 
 class BMBudgetHistory(tk.Frame): #Budget History
+    # Inspiration: https://stackoverflow.com/questions/4066974/scrolling-multiple-tkinter-listboxes-together
+
     def __init__(self, parent, controller):
-        def refresh():
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            for widget in BMBudgetHistory.winfo_children(self):
-                widget.destroy()
-
-            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
-            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            if len(l1) == 0 and len(l2) == 0:  # Profile exists, but there are no deposits or expenses yet
-                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
-                label2.grid()
-            else:
-                if len(l2) == 0:
-                    rows = len(l1)
-                    columns = len(l1[0])
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l1[i][j])
-                else:
-                    l3 = l1 + l2
-                    rows = len(l3)
-                    columns = len(l3[0])
-
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l3[i][j])
-
-            button = tk.Button(self, text="Refresh", command=lambda: refresh())
-            button.grid()
-            button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
-            button.grid()
-
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        if (there_are_existing_profiles):
-            l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
-            l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
-            if len(l1) == 0 and len(l2) == 0: #Profile exists, but there are no deposits or expenses yet
-                label2 = tk.Label(self, text="NO HISTORY TO SHOW")
-                label2.grid()
+        button = tk.Button(self, text="Back", command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
+        # button.grid(row=1, column=4)
+        button.pack()
+
+        if there_are_existing_profiles:
+            if len(loaded_profiles["profiles"][current_profile_ID]["expenses"])<1 and len(loaded_profiles["profiles"][current_profile_ID]["deposits"]) < 1:
+                print("No history to show")
+                label = tk.Label(self, text="NO HISTORY TO SHOW")
+                label.pack()
             else:
-                if len(l2) == 0:
-                    rows = len(l1)
-                    columns = len(l1[0])
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l1[i][j])
-                else:
-                    l3 = l1 + l2
-                    rows = len(l3)
-                    columns = len(l3[0])
+                label = tk.Label(self, text="Budget History")
+                label.pack()
+                # the shared scrollbar
+                self.scrollbar = Scrollbar(self, orient='vertical')
 
-                    for i in range(rows):
-                        for j in range(columns):
-                            self.e = Entry(self)
-                            self.e.grid(row=i, column=j)
-                            self.e.insert(END, l3[i][j])
+                # note that yscrollcommand is set to a custom method for each listbox
+                self.list1 = Listbox(self, yscrollcommand=self.yscroll1)
+                self.list1.pack(fill='y', side='left')
 
-        button = tk.Button(self, text="Refresh", command=lambda: refresh())
-        button.grid()
-        button = tk.Button(self, text="Back", command=lambda: controller.show_frame("BudgetManagerHomePage"))
-        button.grid()
+                self.list2 = Listbox(self, yscrollcommand=self.yscroll2)
+                self.list2.pack(fill='both', side='left')
+
+                self.list3 = Listbox(self, yscrollcommand=self.yscroll3)
+                self.list3.pack(fill='both', side='left')
+
+                self.scrollbar.config(command=self.yview)
+                self.scrollbar.pack(side='right', fill='y')
+
+                if there_are_existing_profiles:
+
+                    # fill the listboxes with stuff
+                    for x in range(len(loaded_profiles["profiles"][current_profile_ID]["expenses"])):
+                        self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][0])
+                        self.list2.insert('end', -loaded_profiles["profiles"][current_profile_ID]["expenses"][x][1])
+                        self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["expenses"][x][2])
+                    for x in range(len(loaded_profiles["profiles"][current_profile_ID]["deposits"])):
+                        self.list1.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][0])
+                        self.list2.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][1])
+                        self.list3.insert('end', loaded_profiles["profiles"][current_profile_ID]["deposits"][x][2])
+
+
+        def updateBudgetManagerHomePage(): # Removes need for refresh button on PageSix
+            app.frames["BudgetManagerHomePage"].destroy()
+            app.frames["BudgetManagerHomePage"] = BudgetManagerHomePage(parent, controller)
+            app.frames["BudgetManagerHomePage"].grid(row=0, column=0, sticky="nsew")
+
+    def yscroll1(self, *args):
+        if self.list2.yview() != self.list1.yview():
+            self.list2.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yscroll2(self, *args):
+        if self.list1.yview() != self.list2.yview():
+            self.list1.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yscroll3(self, *args):
+        if self.list1.yview() != self.list3.yview():
+            self.list3.yview_moveto(args[0])
+        self.scrollbar.set(*args)
+
+    def yview(self, *args):
+        self.list1.yview(*args)
+        self.list2.yview(*args)
+        self.list3.yview(*args)
+
+        # if (there_are_existing_profiles):
+        #     l1 = loaded_profiles["profiles"][current_profile_ID]["deposits"]
+        #     l2 = loaded_profiles["profiles"][current_profile_ID]["expenses"]
+        #     if len(l1) == 0 and len(l2) == 0: #Profile exists, but there are no deposits or expenses yet
+        #         label2 = tk.Label(self, text="NO HISTORY TO SHOW")
+        #         label2.grid()
+        #     else:
+        #         if len(l2) == 0:
+        #             rows = len(l1)
+        #             columns = len(l1[0])
+        #             for i in range(rows):
+        #                 for j in range(columns):
+        #                     self.e = Entry(self)
+        #                     self.e.grid(row=i, column=j)
+        #                     self.e.insert(END, l1[i][j])
+        #         else:
+        #             l3 = l1 + l2
+        #             rows = len(l3)
+        #             columns = len(l3[0])
+        #
+        #             for i in range(rows):
+        #                 for j in range(columns):
+        #                     self.e = Entry(self)
+        #                     self.e.grid(row=i, column=j)
+        #                     self.e.insert(END, l3[i][j])
+
+
 
 if __name__ == "__main__":
     app = FiMan()
+    app.title('FiMan')
     app.geometry("700x500")
     app.mainloop()
