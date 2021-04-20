@@ -73,11 +73,15 @@ def getTicker(tickerList):
 def getMarketNews():
     marketNewsRequest = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'
     marketNewsResponse = requests.get(marketNewsRequest)
-    marketNewsJSON = marketNewsResponse.json()
+    try: # Incase the API doesnt work for some reason
+        marketNewsJSON = marketNewsResponse.json()
+        for i in range(len(marketNewsJSON)):
+            print('Next Article:', marketNewsJSON[i])
+            print('')
+        return marketNewsJSON
+    except:
+        print("Couldnt get market news at this time")
 
-    for i in range(len(marketNewsJSON)):
-        print('Next Article:', marketNewsJSON[i])
-        print('')
 
     return marketNewsJSON
 
