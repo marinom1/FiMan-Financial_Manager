@@ -79,8 +79,6 @@ class FiMan(tk.Tk):
         test_var.set("this is a test")
         self.show_frame("StartPage")
 
-
-
     def show_frame(self, page_name):
         '''Show a frame for the given page name'''
         frame = self.frames[page_name]
@@ -104,7 +102,7 @@ class StartPage(tk.Frame): # Welcome to FiMan
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="Welcome to FiMan! A Financial Manager Software Application")
+        label = tk.Label(self, text="Welcome to FiMan!\n A Financial Manager Software Application", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
         button1 = tk.Button(self, text="Register", width=8, command=lambda: [updatePageOne(), controller.show_frame("PageOne")])
@@ -467,8 +465,7 @@ class PageSeven(tk.Frame): # Login Successful
     def __init__(self, parent, controller):
         var = tk.StringVar()
         var.set("")
-        def show_profile_details():
-            var.set(loaded_profiles["profiles"][current_profile_ID])
+
         def restore_default_text():
             var.set("")
         tk.Frame.__init__(self, parent)
@@ -478,12 +475,10 @@ class PageSeven(tk.Frame): # Login Successful
         label.pack(side="top", fill="x", pady=10)
         global current_profile_ID
         print("current_profile_ID in Login Successful page is:", current_profile_ID)
-        label1 = tk.Label(self, textvariable=var)
-        label1.pack()
+        label2 = tk.Label(self, text="Welcome " + loaded_profiles["profiles"][current_profile_ID]["name"] +"!", font=controller.title_font)
+        label2.pack(side="top", fill="x", pady=10)
         button = tk.Button(self, text="Home Page", width=12, command=lambda: [restore_default_text(), controller.show_frame("PageEight")])
         button.pack()
-        button1 = tk.Button(self, text="Profile Details", width=12, command=lambda: show_profile_details())
-        button1.pack()
 
 class PageEight(tk.Frame): # Home Page
     def __init__(self, parent, controller):
@@ -501,11 +496,10 @@ class PageEight(tk.Frame): # Home Page
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="Home")
+        label = tk.Label(self, text="Home", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        label1 = tk.Label(self, textvariable=var)
+        label1 = tk.Label(self, text="Welcome " + loaded_profiles["profiles"][current_profile_ID]["name"] +"!", font=controller.title_font)
         label1.pack()
-
         button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
         button1.pack()
         button2 = tk.Button(self, text="Stock Market", width=17, command=lambda: controller.show_frame("StockMarketHomePage"))
@@ -514,8 +508,7 @@ class PageEight(tk.Frame): # Home Page
         button3.pack()
         button4 = tk.Button(self, text="Logout", width=17, command=lambda: controller.show_frame("StartPage"))
         button4.pack()
-        button5 = tk.Button(self, text="View Profile Details", width=17, command=lambda: show_profile_details())
-        button5.pack()
+
 
 class PageNine(tk.Frame): # Settings - Michael
     def __init__(self, parent, controller):
@@ -524,7 +517,7 @@ class PageNine(tk.Frame): # Settings - Michael
 
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="Settings")
+        label = tk.Label(self, text="Settings", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
         label1 = tk.Label(self, textvariable=var)
         label1.pack()
@@ -719,6 +712,8 @@ class PageTwelve(tk.Frame): # Settings - Choose Enabled Features
 
             button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
             button.pack()
+            button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+            button1.pack()
 
 class PageThirteen(tk.Frame): # Enabled Features Change Successful
     def __init__(self, parent, controller):
@@ -962,11 +957,9 @@ class SMSavedCompaniesAndTickersPage(tk.Frame):
 
 class BudgetManagerHomePage(tk.Frame):
     def __init__(self, parent, controller):
-
-
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        label = tk.Label(self, text="Budget Manager")
+        label = tk.Label(self, text="Budget Manager", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
         global there_are_existing_profiles
         global loaded_profiles
@@ -1032,20 +1025,25 @@ class BudgetManagerHomePage(tk.Frame):
 
     def notification(self):
         x = random.randint(1, 5)  # generate random int between 1 and 4
+        print("the random number is:", x)
         if (x == 1):
-            if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
-                return "You have more money than the average American has in the bank (> $3,400)"
-            else:
-                return "You have less money than the average American has in the bank (> $3,400)"
+            if there_are_existing_profiles:
+                if (loaded_profiles["profiles"][current_profile_ID]["total_balance"] > 3400):
+                    return "You have more money than the average American has in the bank (> $3,400)"
+                else:
+                    return "You have less money than the average American has in the bank (< $3,400)"
         elif (x == 2):
-            if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
-                return "The average american spends $5,102 in a month. Your budget is currently more than that"
-            else:
-                return "The average american spends $5,102 in a month. Your budget is currently less than that"
+            if there_are_existing_profiles:
+                if (loaded_profiles["profiles"][current_profile_ID]["budget"] > 5102):
+                    return "The average american spends $5,102 in a month. Your budget is currently more than that"
+                else:
+                    return "The average american spends $5,102 in a month. Your budget is currently less than that"
         elif (x == 3):
             return "Are you taking into consideration your retirement plan?"
         elif (x == 4):
             return "Only 30% of American households have a long-term financial plan"
+        else:
+            return ""
 
 class BMAdjustBalance(tk.Frame): #Adjust balance
     def __init__(self, parent, controller):
@@ -1401,8 +1399,9 @@ class BMBudgetHistory(tk.Frame): #Budget History
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        label = tk.Label(self, text="Budget History", font=controller.title_font)
+        label.pack()
         button = tk.Button(self, text="Back", command=lambda: [updateBudgetManagerHomePage(), controller.show_frame("BudgetManagerHomePage")])
-        # button.grid(row=1, column=4)
         button.pack()
 
         if there_are_existing_profiles:
@@ -1411,8 +1410,6 @@ class BMBudgetHistory(tk.Frame): #Budget History
                 label = tk.Label(self, text="NO HISTORY TO SHOW")
                 label.pack()
             else:
-                label = tk.Label(self, text="Budget History")
-                label.pack()
                 # the shared scrollbar
                 self.scrollbar = Scrollbar(self, orient='vertical')
 
