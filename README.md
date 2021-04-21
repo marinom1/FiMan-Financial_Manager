@@ -1,5 +1,3 @@
-![Build and Test](https://github.com/drphamwit/swe-sample-project-github-repo/workflows/Build%20and%20Test/badge.svg)
-
 # FiMan (Financial Manager)
 
 ## Introduction
