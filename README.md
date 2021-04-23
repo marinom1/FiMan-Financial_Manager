@@ -4,7 +4,6 @@
 People love money. People love saving money. People don’t love losing money. The problem is that there are so many apps and different tools to manage your finances! Therefore, there needs to be a tool that people can use to keep track and manage all your life’s earnings, spending, and savings without having to jump from app to app or website to website. Our solution is to create FiMan - ONE app where you can manage all your finances without any hassle. It has blazing fast responsiveness and contains many different useful features that users will find easy to use, including a balance tracker, a budget manager, a live stock news tracker, and budget help notifications.
 
 ## Functions
-List all the functions with their sub functions of your application.
 1. Create a New Profile
 	* The system shall allow users to create a new profile with their name.
 	* The system shall allow users to edit their personal information.
