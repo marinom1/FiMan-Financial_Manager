@@ -1,5 +1,5 @@
 import requests, json
-from config import PolygonIOKey, FinnhubIOKey, NewsAPIKey
+from config import PolygonIOKey, FinnhubIOKey
 
 # Stock Symbols
 def getSymbols():
