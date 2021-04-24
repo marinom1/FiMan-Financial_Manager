@@ -1,8 +1,12 @@
 import tkinter as tk
+import json, os, webbrowser, requests
+from config import FinnhubIOKey
 import webbrowser
 from datetime import datetime as dt
+from functools import partial
 from tkinter import font as tkfont
 from tkinter import *
+from tkinter import messagebox
 from landing_page import load_existing_profiles
 from home_page import *
 from stock_market import *
@@ -57,6 +61,7 @@ class FiMan(tk.Tk):
                 SMSectorsPage,
                 SMCompaniesAndTickersPage,
                 SMNewsAndArticlesPage,
+                SMCompanySearchPage,
                 # SMSavedCompaniesAndTickersPage,
                 BudgetManagerHomePage,
                 BMAdjustBalance,
@@ -64,8 +69,7 @@ class FiMan(tk.Tk):
                 BMEnterDeposit,
                 BMEnterExpense,
                 BMBudgetHistory
-                # SMSymbolLookupPage
-                # SMSavedCompaniesAndTickersPage
+
         ):  # If making new page, be sure to add it in here
 
             page_name = F.__name__
@@ -123,9 +127,9 @@ class PageOne(tk.Frame):  # Register a new profile (Enter name)
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [check_name(new_name_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
 
         def check_name(new_name_var):
@@ -152,9 +156,9 @@ class PageOne(tk.Frame):  # Register a new profile (Enter name)
                 new_name_var = tk.StringVar()
                 entry = tk.Entry(self, width=15, textvariable=new_name_var)
                 entry.pack()
-                button = tk.Button(self, text="Next", command=lambda: [check_name(new_name_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_name(new_name_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
                 button1.pack()
             else:  # valid input, store their name and move to next registration step
                 print("new_name_var is:", name)
@@ -208,9 +212,9 @@ class PageTwo(tk.Frame):  # Register a new profile (Choose Features)
         checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
-        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
 
         def check_valid_input(self, feature1_var, feature2_var):
@@ -261,10 +265,9 @@ class PageTwo(tk.Frame):  # Register a new profile (Choose Features)
                 checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
                 checkbutton2.pack()
 
-                button = tk.Button(self, text="Next",
-                                   command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
                 button1.pack()
             else:  # Valid user input
                 controller.show_frame("PageThree")
@@ -289,9 +292,9 @@ class PageThree(tk.Frame):  # Register a new profile (Enter balance)
         new_balance_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_balance_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_balance_var), ])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(new_balance_var), ])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
 
         def check_valid_input(new_balance_var):
@@ -314,10 +317,9 @@ class PageThree(tk.Frame):  # Register a new profile (Enter balance)
                 new_balance_var = tk.DoubleVar()
                 entry = tk.Entry(self, width=15, textvariable=new_balance_var)
                 entry.pack()
-                button = tk.Button(self, text="Next",
-                                   command=lambda: [check_valid_input(new_balance_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(new_balance_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
                 button1.pack()
 
 
@@ -332,9 +334,9 @@ class PageFour(tk.Frame):  # Register a new profile (Enter budget)
         new_budget_var = tk.DoubleVar()
         entry = tk.Entry(self, width=15, textvariable=new_budget_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(new_budget_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
         button1.pack()
 
         def check_valid_input(new_budget_var):
@@ -362,10 +364,9 @@ class PageFour(tk.Frame):  # Register a new profile (Enter budget)
                 new_budget_var = tk.DoubleVar()
                 entry = tk.Entry(self, width=15, textvariable=new_budget_var)
                 entry.pack()
-                button = tk.Button(self, text="Next",
-                                   command=lambda: [check_valid_input(new_budget_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(new_budget_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("StartPage")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("StartPage")])
                 button1.pack()
 
         def write_new_profile_to_file():
@@ -480,8 +481,13 @@ class PageSeven(tk.Frame):  # Login Successful
             label2 = tk.Label(self, text="Welcome " + loaded_profiles["profiles"][current_profile_ID]["name"] + "!",
                               font=controller.title_font)
             label2.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Home Page", width=12, command=lambda: [controller.show_frame("PageEight")])
+        button = tk.Button(self, text="Home Page", width=12, command=lambda: [update_PageEight(), controller.show_frame("PageEight")])
         button.pack()
+
+        def update_PageEight():
+            app.frames["PageEight"].destroy()
+            app.frames["PageEight"] = PageEight(parent, controller)
+            app.frames["PageEight"].grid(row=0, column=0, sticky="nsew")
 
 
 class PageEight(tk.Frame):  # Home Page
@@ -543,9 +549,9 @@ class PageTen(tk.Frame):  # Settings - Change Name
         new_name_var = tk.StringVar()
         entry = tk.Entry(self, width=15, textvariable=new_name_var)
         entry.pack()
-        button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [store_name(new_name_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("PageNine")])
         button1.pack()
 
         def store_name(new_name_var):
@@ -572,9 +578,9 @@ class PageTen(tk.Frame):  # Settings - Change Name
                 new_name_var = tk.StringVar()
                 entry = tk.Entry(self, width=15, textvariable=new_name_var)
                 entry.pack()
-                button = tk.Button(self, text="Next", command=lambda: [store_name(new_name_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [store_name(new_name_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("PageNine")])
                 button1.pack()
             else:  # Valid
                 # Now update profiles.json with new name
@@ -644,9 +650,9 @@ class PageTwelve(tk.Frame):  # Settings - Choose Enabled Features
         checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
         checkbutton2.pack()
 
-        button = tk.Button(self, text="Next", command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+        button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
         button.pack()
-        button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+        button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("PageNine")])
         button1.pack()
 
         def check_valid_input(self, feature1_var, feature2_var):
@@ -702,10 +708,9 @@ class PageTwelve(tk.Frame):  # Settings - Choose Enabled Features
                 checkbutton2 = tk.Checkbutton(self, text="Stock Market Tool", variable=feature2_var)
                 checkbutton2.pack()
 
-                button = tk.Button(self, text="Next",
-                                   command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(self, feature1_var, feature2_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel", command=lambda: [controller.show_frame("PageNine")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("PageNine")])
                 button1.pack()
             else:  # Valid user input
                 self.store_details(feature1_var, feature2_var)
@@ -750,7 +755,7 @@ class StockMarketHomePage(tk.Frame):  # Stock Market Home Page
                             command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
         button2.pack()
         button3 = tk.Button(self, text="Search Company", width=20,
-                            command=lambda: controller.show_frame("SMSymbolLookupPage"))
+                            command=lambda: controller.show_frame("SMCompanySearchPage"))
         button3.pack()
         button4 = tk.Button(self, text="News and Articles", width=20,
                             command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
@@ -817,9 +822,11 @@ class SMCompaniesAndTickersPage(tk.Frame):
         label = tk.Label(self, text="Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        doneButton = tk.Button(self, text="Done", width=10,
-                               command=lambda: controller.show_frame("StockMarketHomePage"))
+        doneButton = tk.Button(self, text="Done", width=10, command=lambda: controller.show_frame("StockMarketHomePage"))
         doneButton.pack(side=TOP, anchor=NW)
+
+        generateButton = tk.Button(self, text="Generate", width=10, command=lambda: getSymbols())
+        generateButton.pack(side=TOP, anchor=NW)
 
         scroll_bar = Scrollbar(self)
         scroll_bar.pack(side=RIGHT, fill=Y)
@@ -827,14 +834,17 @@ class SMCompaniesAndTickersPage(tk.Frame):
         listBox = tk.Listbox(self, yscrollcommand=scroll_bar.set)
         listBox.config(height=500)
 
-        generatedSymbols = getSymbols()
+        def getSymbols():
+            symbolsURL = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&currency=&token={FinnhubIOKey}'
+            symbolsRequest = requests.get(symbolsURL)
+            symbolsResponse = json.loads(symbolsRequest.content)
 
-        for ticker in range(0, 499):
-            description = generatedSymbols[ticker]['description']
-            symbol = generatedSymbols[ticker]['symbol']
-            listBox.insert(END, f'Name: {description}')
-            listBox.insert(END, f'Symbol: {symbol}')
-            listBox.insert(END, '')
+            for ticker in range(0, 499):
+                description = symbolsResponse[ticker]['description']
+                symbol = symbolsResponse[ticker]['symbol']
+                listBox.insert(END, f'Name: {description}')
+                listBox.insert(END, f'Symbol: {symbol}')
+                listBox.insert(END, '')
 
         # Functions to generate different numbers of results per page
         """
@@ -885,26 +895,63 @@ class SMCompaniesAndTickersPage(tk.Frame):
         listBox.pack(side=TOP, fill=BOTH)
         scroll_bar.config(command=listBox.yview)
 
-
-class SMSymbolLookupPage(tk.Frame):
+class SMCompanySearchPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        searchBoxInstructions = tk.Label(self,
-                                         text="Search for your desired Companies and Tickers, separated with a comma")
+        searchBoxInstructions = tk.Label(self, text="Search for your desired Companies and Tickers")
         searchBoxInstructions.pack()
 
-        searchBox = tk.Entry(self)
+        ticker = tk.StringVar()
+        searchBox = tk.Entry(self, textvariable=ticker)
         searchBox.pack()
 
-        searchLabel = tk.Button(self, text="Search", width=7)
+        searchLabel = tk.Button(self, text="Search", width=7, command=lambda: [getTicker(ticker)])
         searchLabel.pack()
 
-        confirmButton = tk.Button(self, text="Done", width=7,
-                                  command=lambda: controller.show_frame("StockMarketHomePage"))
+        def getTicker(ticker):
+            try:
+                ticker = ticker.get()
+                detailsURL = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
+                detailsRequest = requests.get(detailsURL)
+                detailsResponse = json.loads(detailsRequest.content)
+
+                quoteURL = f'https://finnhub.io/api/v1/quote?symbol={ticker}&token={FinnhubIOKey}'
+                quoteRequest = requests.get(quoteURL)
+                quoteResponse = json.loads(quoteRequest.content)
+
+                name = detailsResponse['name']
+                nameLabel = tk.Label(self, text=name)
+                nameLabel.pack()
+
+                country = detailsResponse['country']
+                countryLabel = tk.Label(self, text=country)
+                countryLabel.pack()
+
+                exchange = detailsResponse['exchange']
+                exchangeLabel = tk.Label(self, text=exchange)
+                exchangeLabel.pack()
+
+                ipo = detailsResponse['ipo']
+                ipoLabel = tk.Label(self, text=ipo)
+                ipoLabel.pack()
+
+                ticker= detailsResponse['ticker']
+                tickerLabel = tk.Label(self, text=ticker)
+                tickerLabel.pack()
+
+                weburl = detailsResponse['weburl']
+                weburlLabel = tk.Label(self, text=weburl)
+                weburlLabel.pack()
+
+            except:
+                errorLabel = tk.Label(self, text="Invalid ticker or company")
+                errorLabel.pack()
+
+        confirmButton = tk.Button(self, text="Done", width=7, command=lambda: controller.show_frame("StockMarketHomePage"))
         confirmButton.pack()
 
 
@@ -915,6 +962,9 @@ class SMNewsAndArticlesPage(tk.Frame):
         self.controller = controller
         label = tk.Label(self, text="News and Articles", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+
+        generateButton = tk.Button(self, text="Generate", width=10, command=lambda: getMarketNews())
+        generateButton.pack(side=TOP, anchor=NW)
 
         confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
         confirmButton.pack(side=TOP, anchor=NW)
@@ -928,52 +978,29 @@ class SMNewsAndArticlesPage(tk.Frame):
         def openLink(url):
             webbrowser.open_new(url)
 
-        generatedArticles = getMarketNews()
-        for article in range(len(generatedArticles)):
-            imageLink = generatedArticles[article]['image']
-            headline = generatedArticles[article]['headline']
-            datetimeTimeStamp = generatedArticles[article]['datetime']
-            summary = generatedArticles[article]['summary']
-            url = generatedArticles[article]['url']
+        def getMarketNews():
+            marketNewsURL = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'
+            marketNewsRequest = requests.get(marketNewsURL)
+            marketNewsResponse = json.loads(marketNewsRequest.content)
 
-            datetime = dt.fromtimestamp(datetimeTimeStamp)
+            for article in range(len(marketNewsResponse)):
+                imageLink = marketNewsResponse[article]['image']
+                headline = marketNewsResponse[article]['headline']
+                datetimeTimeStamp = marketNewsResponse[article]['datetime']
+                summary = marketNewsResponse[article]['summary']
+                url = marketNewsResponse[article]['url']
 
-            listBox.insert(END, f'Headline: {headline}')
-            listBox.insert(END, f'Date: {datetime}')
-            listBox.insert(END, f'Summary: {summary}')
-            listBox.insert(END, f'Link: {url}')
-            listBox.insert(END, '')
+                datetime = dt.fromtimestamp(datetimeTimeStamp)
 
-            """
-            articleHeadline = tk.Label(self, text=f'{headline}', anchor="e", justify=LEFT)
-            articleHeadline.pack()
-            articleDate = tk.Label(self, text=f'{datetime}')
-            articleDate.pack()
-            articleSummary = tk.Label(self, text=f'{summary}')
-            articleSummary.pack()
-            articleURL = tk.Label(self, text=f'{url}', fg="blue", cursor="hand2")
-            articleURL.pack()
-            articleURL.bind("<Button-1>", lambda e: openLink(f'{url}'))
-            articleSpace = tk.Label(self, text='')
-            articleSpace.pack()
-            """
+                listBox.insert(END, f'Headline: {headline}')
+                listBox.insert(END, f'Date: {datetime}')
+                listBox.insert(END, f'Summary: {summary}')
+                listBox.insert(END, f'Link: {url}')
+                listBox.insert(END, '')
 
         listBox.pack(side=TOP, fill=BOTH)
         scroll_bar.config(command=listBox.yview)
 
-
-"""
-# Stock Market Saved Companies and Tickers
-class SMSavedCompaniesAndTickersPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
-        label.pack(side="top", fill="x", pady=10)
-
-        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
-        confirmButton.pack()
-"""
 """END OF STOCK MARKET SECTION"""
 
 
@@ -1172,10 +1199,9 @@ class BMAdjustBudget(tk.Frame):  # Adjust budget
                 new_budget_var = tk.DoubleVar()
                 entry = tk.Entry(self, width=15, textvariable=new_budget_var)
                 entry.pack()
-                button = tk.Button(self, text="Next", command=lambda: [check_valid_input(new_budget_var)])
+                button = tk.Button(self, text="Next", width=7, command=lambda: [check_valid_input(new_budget_var)])
                 button.pack()
-                button1 = tk.Button(self, text="Cancel",
-                                    command=lambda: [controller.show_frame("BudgetManagerHomePage")])
+                button1 = tk.Button(self, text="Cancel", width=7, command=lambda: [controller.show_frame("BudgetManagerHomePage")])
                 button1.pack()
 
 
