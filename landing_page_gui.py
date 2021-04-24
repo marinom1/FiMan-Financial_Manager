@@ -413,40 +413,17 @@ class PageFive(tk.Frame):  # Registration Successful
         label = tk.Label(self, text="Registration Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        button_home = tk.Button(self, text="Home", width=8, command=lambda: controller.show_frame("PageEight"))
+        button_home = tk.Button(self, text="Home", width=8, command=lambda: [update_PageEight(), controller.show_frame("PageEight")])
         button_home.pack()
         buttonRegistration = tk.Button(self, text="Landing", width=8,
                                        command=lambda: controller.show_frame("StartPage"))
         buttonRegistration.pack()
 
-class PageSix(tk.Frame): # Login to Existing Profile
-    def __init__(self, parent, controller):
-        def get_profile_ID(i):
-            print("Profile ID in Login to Existing Profile is:",i)
-            global current_profile_ID
-            current_profile_ID = i
-            print("The current_profile_ID is:", current_profile_ID)
+        def update_PageEight():
+            app.frames["PageEight"].destroy()
+            app.frames["PageEight"] = PageEight(parent, controller)
+            app.frames["PageEight"].grid(row=0, column=0, sticky="nsew")
 
-        def refresh_profiles():
-            print("Does this print 1")
-            there_are_existing_profiles, loaded_profiles = load_existing_profiles()
-            # Destroy the existing stuff
-            for widget in PageFour.winfo_children(self):
-                widget.destroy()
-
-            label = tk.Label(self, text="Please select your profile", font=controller.title_font)
-            label.pack(side="top", fill="x", pady=10)
-            print("len of loaded profiles here is:", len(loaded_profiles["profiles"]))
-            for i in range(len(loaded_profiles["profiles"])):
-                # I set the name=i so that each button will remember what its ID is. For example profile 0 should be ID 0 and profile 1 should be ID 1
-                button = tk.Button(self, text=loaded_profiles["profiles"][i]["name"], command=lambda name=i: [get_profile_ID(name), controller.show_frame("PageSeven")])
-
-                button.pack()
-            button1 = tk.Button(self, text="Refresh", width=10, command=lambda: [refresh_profiles()])
-            button1.pack()
-            backButton = tk.Button(self, text="Back", width=10, command=lambda: controller.show_frame("StartPage"))
-            backButton.pack()
-            print("Does this print 2")
 
 class PageSix(tk.Frame):  # Login to Existing Profile
     def __init__(self, parent, controller):
@@ -514,17 +491,21 @@ class PageEight(tk.Frame):  # Home Page
         self.controller = controller
         label = tk.Label(self, text="Home", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+        there_are_existing_profiles, loaded_profiles = load_existing_profiles()
         if there_are_existing_profiles:
             label1 = tk.Label(self, text="Welcome " + loaded_profiles["profiles"][current_profile_ID]["name"] + "!",
                               font=controller.title_font)
             label1.pack()
-        button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: [update_budget_manager_home_page(),
-                                                                                    controller.show_frame(
-                                                                                        "BudgetManagerHomePage")])
-        button1.pack()
-        button2 = tk.Button(self, text="Stock Market", width=17,
-                            command=lambda: controller.show_frame("StockMarketHomePage"))
-        button2.pack()
+
+            if "1" in loaded_profiles["profiles"][current_profile_ID]["features"]:
+                button1 = tk.Button(self, text="Budget Manager", width=17, command=lambda: [update_budget_manager_home_page(),
+                                                                                            controller.show_frame(
+                                                                                                "BudgetManagerHomePage")])
+                button1.pack()
+            if "2" in loaded_profiles["profiles"][current_profile_ID]["features"]:
+                button2 = tk.Button(self, text="Stock Market", width=17,
+                                    command=lambda: controller.show_frame("StockMarketHomePage"))
+                button2.pack()
         button3 = tk.Button(self, text="Settings", width=17, command=lambda: controller.show_frame("PageNine"))
         button3.pack()
         button4 = tk.Button(self, text="Logout", width=17, command=lambda: controller.show_frame("StartPage"))
@@ -746,9 +727,13 @@ class PageThirteen(tk.Frame):  # Enabled Features Change Successful
         self.controller = controller
         label = tk.Label(self, text="Enabled Features Change Successful!", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Home", command=lambda: controller.show_frame("PageEight"))
+        button = tk.Button(self, text="Home", command=lambda: [update_PageEight(), controller.show_frame("PageEight")])
         button.pack()
 
+        def update_PageEight():
+            app.frames["PageEight"].destroy()
+            app.frames["PageEight"] = PageEight(parent, controller)
+            app.frames["PageEight"].grid(row=0, column=0, sticky="nsew")
 
 """STOCK MARKET SECTION"""
 
