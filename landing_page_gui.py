@@ -61,7 +61,7 @@ class FiMan(tk.Tk):
                 SMSectorsPage,
                 SMCompaniesAndTickersPage,
                 SMNewsAndArticlesPage,
-                # SMCompanySearchPage,
+                SMCompanySearchPage,
                 # SMSavedCompaniesAndTickersPage,
                 BudgetManagerHomePage,
                 BMAdjustBalance,
@@ -750,7 +750,7 @@ class StockMarketHomePage(tk.Frame):  # Stock Market Home Page
                             command=lambda: controller.show_frame("SMCompaniesAndTickersPage"))
         button2.pack()
         button3 = tk.Button(self, text="Search Company", width=20,
-                            command=lambda: controller.show_frame("SMSymbolLookupPage"))
+                            command=lambda: controller.show_frame("SMCompanySearchPage"))
         button3.pack()
         button4 = tk.Button(self, text="News and Articles", width=20,
                             command=lambda: controller.show_frame("SMNewsAndArticlesPage"))
@@ -817,9 +817,11 @@ class SMCompaniesAndTickersPage(tk.Frame):
         label = tk.Label(self, text="Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        doneButton = tk.Button(self, text="Done", width=10,
-                               command=lambda: controller.show_frame("StockMarketHomePage"))
+        doneButton = tk.Button(self, text="Done", width=10, command=lambda: controller.show_frame("StockMarketHomePage"))
         doneButton.pack(side=TOP, anchor=NW)
+
+        generateButton = tk.Button(self, text="Generate", width=10, command=lambda: getSymbols())
+        generateButton.pack(side=TOP, anchor=NW)
 
         scroll_bar = Scrollbar(self)
         scroll_bar.pack(side=RIGHT, fill=Y)
@@ -827,14 +829,17 @@ class SMCompaniesAndTickersPage(tk.Frame):
         listBox = tk.Listbox(self, yscrollcommand=scroll_bar.set)
         listBox.config(height=500)
 
-        generatedSymbols = getSymbols()
+        def getSymbols():
+            symbolsURL = f'https://finnhub.io/api/v1/stock/symbol?exchange=US&currency=&token={FinnhubIOKey}'
+            symbolsRequest = requests.get(symbolsURL)
+            symbolsResponse = json.loads(symbolsRequest.content)
 
-        for ticker in range(0, 499):
-            description = generatedSymbols[ticker]['description']
-            symbol = generatedSymbols[ticker]['symbol']
-            listBox.insert(END, f'Name: {description}')
-            listBox.insert(END, f'Symbol: {symbol}')
-            listBox.insert(END, '')
+            for ticker in range(0, 499):
+                description = symbolsResponse[ticker]['description']
+                symbol = symbolsResponse[ticker]['symbol']
+                listBox.insert(END, f'Name: {description}')
+                listBox.insert(END, f'Symbol: {symbol}')
+                listBox.insert(END, '')
 
         # Functions to generate different numbers of results per page
         """
@@ -892,27 +897,56 @@ class SMCompanySearchPage(tk.Frame):
         label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        def getTicker(ticker):
-            detailsRequest = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
-            detailsResponse = requests.get(detailsRequest)
-            detailsJSON = detailsResponse.json()
-        searchBoxInstructions = tk.Label(self,
-                                         text="Search for your desired Companies and Tickers, separated with a comma")
+        searchBoxInstructions = tk.Label(self, text="Search for your desired Companies and Tickers")
         searchBoxInstructions.pack()
 
-        nameLabel = tk.Label(self, text=f'{ticker}')
-        nameLabel.pack()
-
-        searchBoxInstructions = tk.Label(self, text="Search for Companies and Tickers by Ticker")
-        searchBoxInstructions.pack()
         ticker = tk.StringVar()
         searchBox = tk.Entry(self, textvariable=ticker)
         searchBox.pack()
-        searchLabel = tk.Button(self, text="Search", width=7, command=partial(getTicker, ticker))
+
+        searchLabel = tk.Button(self, text="Search", width=7, command=lambda: [getTicker(ticker)])
         searchLabel.pack()
 
-        confirmButton = tk.Button(self, text="Done", width=7,
-                                  command=lambda: controller.show_frame("StockMarketHomePage"))
+        def getTicker(ticker):
+            try:
+                ticker = ticker.get()
+                detailsURL = f'https://finnhub.io/api/v1/stock/profile2?symbol={ticker}&token={FinnhubIOKey}'
+                detailsRequest = requests.get(detailsURL)
+                detailsResponse = json.loads(detailsRequest.content)
+
+                quoteURL = f'https://finnhub.io/api/v1/quote?symbol={ticker}&token={FinnhubIOKey}'
+                quoteRequest = requests.get(quoteURL)
+                quoteResponse = json.loads(quoteRequest.content)
+
+                name = detailsResponse['name']
+                nameLabel = tk.Label(self, text=name)
+                nameLabel.pack()
+
+                country = detailsResponse['country']
+                countryLabel = tk.Label(self, text=country)
+                countryLabel.pack()
+
+                exchange = detailsResponse['exchange']
+                exchangeLabel = tk.Label(self, text=exchange)
+                exchangeLabel.pack()
+
+                ipo = detailsResponse['ipo']
+                ipoLabel = tk.Label(self, text=ipo)
+                ipoLabel.pack()
+
+                ticker= detailsResponse['ticker']
+                tickerLabel = tk.Label(self, text=ticker)
+                tickerLabel.pack()
+
+                weburl = detailsResponse['weburl']
+                weburlLabel = tk.Label(self, text=weburl)
+                weburlLabel.pack()
+
+            except:
+                errorLabel = tk.Label(self, text="Invalid ticker or company")
+                errorLabel.pack()
+
+        confirmButton = tk.Button(self, text="Done", width=7, command=lambda: controller.show_frame("StockMarketHomePage"))
         confirmButton.pack()
 
 
@@ -923,6 +957,9 @@ class SMNewsAndArticlesPage(tk.Frame):
         self.controller = controller
         label = tk.Label(self, text="News and Articles", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
+
+        generateButton = tk.Button(self, text="Generate", width=10, command=lambda: getMarketNews())
+        generateButton.pack(side=TOP, anchor=NW)
 
         confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
         confirmButton.pack(side=TOP, anchor=NW)
@@ -936,52 +973,29 @@ class SMNewsAndArticlesPage(tk.Frame):
         def openLink(url):
             webbrowser.open_new(url)
 
-        generatedArticles = getMarketNews()
-        for article in range(len(generatedArticles)):
-            imageLink = generatedArticles[article]['image']
-            headline = generatedArticles[article]['headline']
-            datetimeTimeStamp = generatedArticles[article]['datetime']
-            summary = generatedArticles[article]['summary']
-            url = generatedArticles[article]['url']
+        def getMarketNews():
+            marketNewsURL = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'
+            marketNewsRequest = requests.get(marketNewsURL)
+            marketNewsResponse = json.loads(marketNewsRequest.content)
 
-            datetime = dt.fromtimestamp(datetimeTimeStamp)
+            for article in range(len(marketNewsResponse)):
+                imageLink = marketNewsResponse[article]['image']
+                headline = marketNewsResponse[article]['headline']
+                datetimeTimeStamp = marketNewsResponse[article]['datetime']
+                summary = marketNewsResponse[article]['summary']
+                url = marketNewsResponse[article]['url']
 
-            listBox.insert(END, f'Headline: {headline}')
-            listBox.insert(END, f'Date: {datetime}')
-            listBox.insert(END, f'Summary: {summary}')
-            listBox.insert(END, f'Link: {url}')
-            listBox.insert(END, '')
+                datetime = dt.fromtimestamp(datetimeTimeStamp)
 
-            """
-            articleHeadline = tk.Label(self, text=f'{headline}', anchor="e", justify=LEFT)
-            articleHeadline.pack()
-            articleDate = tk.Label(self, text=f'{datetime}')
-            articleDate.pack()
-            articleSummary = tk.Label(self, text=f'{summary}')
-            articleSummary.pack()
-            articleURL = tk.Label(self, text=f'{url}', fg="blue", cursor="hand2")
-            articleURL.pack()
-            articleURL.bind("<Button-1>", lambda e: openLink(f'{url}'))
-            articleSpace = tk.Label(self, text='')
-            articleSpace.pack()
-            """
+                listBox.insert(END, f'Headline: {headline}')
+                listBox.insert(END, f'Date: {datetime}')
+                listBox.insert(END, f'Summary: {summary}')
+                listBox.insert(END, f'Link: {url}')
+                listBox.insert(END, '')
 
         listBox.pack(side=TOP, fill=BOTH)
         scroll_bar.config(command=listBox.yview)
 
-
-"""
-# Stock Market Saved Companies and Tickers
-class SMSavedCompaniesAndTickersPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        self.controller = controller
-        label = tk.Label(self, text="Saved Companies and Tickers", font=controller.title_font)
-        label.pack(side="top", fill="x", pady=10)
-
-        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
-        confirmButton.pack()
-"""
 """END OF STOCK MARKET SECTION"""
 
 
