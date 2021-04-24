@@ -481,8 +481,13 @@ class PageSeven(tk.Frame):  # Login Successful
             label2 = tk.Label(self, text="Welcome " + loaded_profiles["profiles"][current_profile_ID]["name"] + "!",
                               font=controller.title_font)
             label2.pack(side="top", fill="x", pady=10)
-        button = tk.Button(self, text="Home Page", width=12, command=lambda: [controller.show_frame("PageEight")])
+        button = tk.Button(self, text="Home Page", width=12, command=lambda: [update_PageEight(), controller.show_frame("PageEight")])
         button.pack()
+
+        def update_PageEight():
+            app.frames["PageEight"].destroy()
+            app.frames["PageEight"] = PageEight(parent, controller)
+            app.frames["PageEight"].grid(row=0, column=0, sticky="nsew")
 
 
 class PageEight(tk.Frame):  # Home Page
