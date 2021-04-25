@@ -834,7 +834,7 @@ class SMSectorsPage(tk.Frame):
         communicationServicesButton = tk.Button(self, text="Communication Services", width=20, command=lambda: getSectorNews(communicationServices))
         communicationServicesButton.pack()
 
-        realEstateButton = tk.Button(self, text="Real Estate", width=20, command=lambda: getSectorNews(realEstate))
+        realEstateButton = tk.Button(self, text="Real Estate", width=20, command=lambda: [getSectorNews(realEstate)])
         realEstateButton.pack()
 
         backButton = tk.Button(self, text="Back", width=20, command=lambda: controller.show_frame("StockMarketHomePage"))
@@ -842,6 +842,8 @@ class SMSectorsPage(tk.Frame):
 
 
         def getSectorNews(sector):
+            listBox.delete(0, END)
+
             sector = sector.get()
             sectorNewsURL = f'https://newsapi.org/v2/everything?q={sector}&apiKey={NewsAPIKey}'
             sectorNewsRequest = requests.get(sectorNewsURL)
