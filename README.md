@@ -20,9 +20,23 @@ People love money. People love saving money. People don’t love losing money. T
 
 ## Getting Started
 ### Installation and Setup
-List all the steps on how to install and setup your project
+These instructions are designed for running this project on Windows; other operating systems may vary in set-up.
+You will need the following before you can use FiMan. We recommend using the most recent versions of each to prevent any bugs.
+	* Python (https://www.python.org/downloads/)
+	* PyCharm Community (https://www.jetbrains.com/pycharm/download/#section=windows)
+1. Run and install the Python and Pycharm Community from their respective websites.
+2. Download the ZIP archive of the project's files from the GitHub repository.
+3. Extract the ZIP to a new folder.
+4. Once PyCharm is installed and running, go to File > Open and select the folder that you extracted the ZIP into.
+	* If PyCharm gives you any errors or warnings regarding a missing interpreter, you may need to reinstall Python or reopen the project.
+5. Go to File > Settings (CTRL+ALT+S) and select Project: [insert folder name]. 
+6. Go to Python Interpreter. Here, you should see a list of packages that came with PyCharm (or packages you have, if it is a preexisting PyCharm install).
+7. On the bottom of this window, click the Install icon (+).
+8. Search for and select the package "requests". Click "Install Package" at the bottom of the window.
 ### Run
-List all the steps on how to run your project
+1. To run FiMan, all you need to do is right-click on "landing_page_gui.py" and select "Run". 
+	* Within a few moments, the program window should appear. If it does not appear, check to see if it is running on your taskbar.
+2. From here, you should then be able to register your profile and utilize the different functions in FiMan.
 
 ## Demo video
 
