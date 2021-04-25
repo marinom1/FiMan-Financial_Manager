@@ -1,5 +1,5 @@
 import requests, json
-from config import PolygonIOKey, FinnhubIOKey
+from config import PolygonIOKey, FinnhubIOKey, NewsAPIKey
 
 # Stock Symbols
 def getSymbols():
@@ -86,5 +86,33 @@ def getMarketNews():
 
 
 # Stock Sector News
+def getSectorNews(sector):
+    sectorNewsURL = f'https://newsapi.org/v2/everything?q={sector}&apiKey={NewsAPIKey}'
+    sectorNewsRequest = requests.get(sectorNewsURL)
+    sectorNewsResponse = json.loads(sectorNewsRequest.content)
 
+    # print(sectorNewsResponse)
 
+    sectorArticles = len(sectorNewsResponse['articles'])
+
+    for i in range(sectorArticles):
+        author = sectorNewsResponse['articles'][i]['author']
+        print(author)
+
+        title = sectorNewsResponse['articles'][i]['title']
+        print(title)
+
+        description = sectorNewsResponse['articles'][i]['description']
+        print(description)
+
+        url = sectorNewsResponse['articles'][i]['url']
+        print(url)
+
+        publishedAt = sectorNewsResponse['articles'][i]['publishedAt']
+        print(publishedAt)
+
+        print()
+
+sector = 'energy-sector'
+
+getSectorNews(sector)
