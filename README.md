@@ -36,6 +36,11 @@ These instructions are designed for running this project on Windows; other opera
 1. To run FiMan, all you need to do is right-click on "landing_page_gui.py" and select "Run". 
 	* Within a few moments, the program window should appear. If it does not appear, check to see if it is running on your taskbar.
 2. From here, you should then be able to register your profile and utilize the different functions in FiMan.
+3. If you happen to encounter any issues or errors regarding the FinnhubIOKey, PolygonIOKey or NewsAPIKey, you may need to retreive new API keys from the following websites:
+	* https://finnhub.io/
+	* https://polygon.io/
+	* https://newsapi.org/
+4. To retrieve and replace these keys, simply click the buttons and follow the instructions on the respective websites. Once you have your new keys, you will want to edit your "config.py" file included in the project to remove the old keys and replace them with the new ones. 
 
 ## Demo video
 
