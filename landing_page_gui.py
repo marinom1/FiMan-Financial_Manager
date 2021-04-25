@@ -1,6 +1,6 @@
 import tkinter as tk
 import json, os, webbrowser, requests
-from config import FinnhubIOKey
+from config import FinnhubIOKey, NewsAPIKey
 import webbrowser
 from datetime import datetime as dt
 from functools import partial
@@ -764,7 +764,7 @@ class StockMarketHomePage(tk.Frame):  # Stock Market Home Page
         button5 = tk.Button(self, text="Saved Companies and Tickers", width=25, command=lambda: controller.show_frame("SMSavedCompaniesAndTickersPage"))
         button5.pack()
         """
-        button6 = tk.Button(self, text="Exit", width=20, command=lambda: controller.show_frame("PageEight"))
+        button6 = tk.Button(self, text="Exit Stock Market", width=20, command=lambda: controller.show_frame("PageEight"))
         button6.pack()
 
 
@@ -775,43 +775,109 @@ class SMSectorsPage(tk.Frame):
         label = tk.Label(self, text="Sectors", font=controller.title_font)
         label.pack(side="top", fill="x", pady=10)
 
-        feature1_var = tk.IntVar()
-        feature2_var = tk.IntVar()
-        feature3_var = tk.IntVar()
-        feature4_var = tk.IntVar()
-        feature5_var = tk.IntVar()
-        feature6_var = tk.IntVar()
-        feature7_var = tk.IntVar()
-        feature8_var = tk.IntVar()
-        feature9_var = tk.IntVar()
-        feature10_var = tk.IntVar()
-        feature11_var = tk.IntVar()
+        scroll_bar = Scrollbar(self)
+        scroll_bar.pack(side=RIGHT, fill=Y)
 
-        checkButton1 = tk.Checkbutton(self, text="Energy", variable=feature1_var)
-        checkButton1.pack()
-        checkButton2 = tk.Checkbutton(self, text="Materials", variable=feature2_var)
-        checkButton2.pack()
-        checkButton3 = tk.Checkbutton(self, text="Industrials", variable=feature3_var)
-        checkButton3.pack()
-        checkButton4 = tk.Checkbutton(self, text="Utilities", variable=feature4_var)
-        checkButton4.pack()
-        checkButton5 = tk.Checkbutton(self, text="Healthcare", variable=feature5_var)
-        checkButton5.pack()
-        checkButton6 = tk.Checkbutton(self, text="Financials", variable=feature6_var)
-        checkButton6.pack()
-        checkButton7 = tk.Checkbutton(self, text="Consumer Discretionary", variable=feature7_var)
-        checkButton7.pack()
-        checkButton8 = tk.Checkbutton(self, text="Consumer Staples", variable=feature8_var)
-        checkButton8.pack()
-        checkButton9 = tk.Checkbutton(self, text="Information Technology", variable=feature9_var)
-        checkButton9.pack()
-        checkButton10 = tk.Checkbutton(self, text="Communication Services", variable=feature10_var)
-        checkButton10.pack()
-        checkButton11 = tk.Checkbutton(self, text="Real Estate", variable=feature11_var)
-        checkButton11.pack()
+        listBox = tk.Listbox(self, yscrollcommand=scroll_bar.set)
+        listBox.config(height=500)
 
-        confirmButton = tk.Button(self, text="Done", command=lambda: controller.show_frame("StockMarketHomePage"))
-        confirmButton.pack()
+        energy = tk.StringVar()
+        energy.set('energy-sector')
+        materials = tk.StringVar()
+        materials.set('materials-sector')
+        industrials = tk.StringVar()
+        industrials.set('industrials-sector')
+        utilities = tk.StringVar()
+        utilities.set('utilities-sector')
+        healthcare = tk.StringVar()
+        healthcare.set('healthcare-sector')
+        financials = tk.StringVar()
+        financials.set('financials-sector')
+        consumerDiscretionary = tk.StringVar()
+        consumerDiscretionary.set('consumer-discretionary-sector')
+        consumerStaples = tk.StringVar()
+        consumerStaples.set('consumer-staples-sector')
+        informationTechnology = tk.StringVar()
+        informationTechnology.set('information-technology-sector')
+        communicationServices = tk.StringVar()
+        communicationServices.set('communication-services-sector')
+        realEstate = tk.StringVar()
+        realEstate.set('real-estate-sector')
+
+        energyButton = tk.Button(self, text="Energy", width=20, command=lambda: getSectorNews(energy))
+        energyButton.pack()
+
+        materialsButton = tk.Button(self, text="Materials", width=20, command=lambda: getSectorNews(materials))
+        materialsButton.pack()
+
+        industrialsButton = tk.Button(self, text="Industrials", width=20, command=lambda: getSectorNews(industrials))
+        industrialsButton.pack()
+
+        utilitiesButton = tk.Button(self, text="Utilities", width=20, command=lambda: getSectorNews(utilities))
+        utilitiesButton.pack()
+
+        healthcareButton = tk.Button(self, text="Healthcare", width=20, command=lambda: getSectorNews(healthcare))
+        healthcareButton.pack()
+
+        financialsButton = tk.Button(self, text="Financials", width=20, command=lambda: getSectorNews(financials))
+        financialsButton.pack()
+
+        consumerDiscretionaryButton = tk.Button(self, text="Consumer Discretionary", width=20, command=lambda: getSectorNews(consumerDiscretionary))
+        consumerDiscretionaryButton.pack()
+
+        consumerStaplesButton = tk.Button(self, text="Consumer Staples", width=20, command=lambda: getSectorNews(consumerStaples))
+        consumerStaplesButton.pack()
+
+        informationTechnologyButton = tk.Button(self, text="Information Technology", width=20, command=lambda: getSectorNews(informationTechnology))
+        informationTechnologyButton.pack()
+
+        communicationServicesButton = tk.Button(self, text="Communication Services", width=20, command=lambda: getSectorNews(communicationServices))
+        communicationServicesButton.pack()
+
+        realEstateButton = tk.Button(self, text="Real Estate", width=20, command=lambda: getSectorNews(realEstate))
+        realEstateButton.pack()
+
+        backButton = tk.Button(self, text="Back", width=20, command=lambda: controller.show_frame("StockMarketHomePage"))
+        backButton.pack()
+
+
+        def getSectorNews(sector):
+            sector = sector.get()
+            sectorNewsURL = f'https://newsapi.org/v2/everything?q={sector}&apiKey={NewsAPIKey}'
+            sectorNewsRequest = requests.get(sectorNewsURL)
+            sectorNewsResponse = json.loads(sectorNewsRequest.content)
+
+            # print(sectorNewsResponse)
+
+            sectorArticles = len(sectorNewsResponse['articles'])
+
+            for i in range(sectorArticles):
+
+                author = sectorNewsResponse['articles'][i]['author']
+                listBox.insert(END, f'Author: {author}')
+                print(author)
+
+                title = sectorNewsResponse['articles'][i]['title']
+                listBox.insert(END, f'Title: {title}')
+                print(title)
+
+                description = sectorNewsResponse['articles'][i]['description']
+                listBox.insert(END, f'Description: {description}')
+                print(description)
+
+                url = sectorNewsResponse['articles'][i]['url']
+                listBox.insert(END, f'URL: {url}')
+                print(url)
+
+                publishedAt = sectorNewsResponse['articles'][i]['publishedAt']
+                listBox.insert(END, f'Publish Date: {publishedAt}')
+                print(publishedAt)
+
+                listBox.insert(END, '')
+                print()
+
+        listBox.pack(side=TOP, fill=BOTH)
+        scroll_bar.config(command=listBox.yview)
 
 
 # Stock Market Companies and Tickers
