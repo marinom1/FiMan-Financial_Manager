@@ -23,10 +23,13 @@ People love money. People love saving money. People don’t love losing money. T
 These instructions are designed for running this project on Windows; other operating systems may vary in set-up. 
 1. Run and install Python.
 	* Python (https://www.python.org/downloads/)
-2. Download the ZIP archive of FiMan's project files from the GitHub repository.
-3. Extract the ZIP to a new folder.
+2. Open a Command Prompt. You can do this by searching for "cmd" in your Start Menu, or by pressing the Win+R keys to run "cmd.exe".
+3. In this terminal, verify that Python is installed by typing the command "py --version". It will list your version if it was installed correctly.
+4. Use the command "py -m pip install requests" to install the "requests" package, which you will need to run FiMan.
+5. Download the ZIP archive of FiMan's project files from the GitHub repository.
+6. Extract the ZIP to a new folder.
 ### Run
-1. To run FiMan, all you need to do is double-click or open "landing_page_gui.py". 
+1. To run FiMan, all you need to do is double-click or open "landing_page_gui.py" in the new folder you extracted the project files from. 
 	* Within a few moments, the program window should appear. If it does not appear, check to see if it is running on your taskbar.
 2. From here, you should then be able to register your profile and utilize the different functions in FiMan.
 3. If you happen to encounter any issues or errors regarding the FinnhubIOKey or NewsAPIKey, you may need to retreive new API keys from the following websites:
