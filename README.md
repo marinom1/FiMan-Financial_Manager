@@ -21,24 +21,16 @@ People love money. People love saving money. People don’t love losing money. T
 ## Getting Started
 ### Installation and Setup
 These instructions are designed for running this project on Windows; other operating systems may vary in set-up. 
-1. Run and install Python and Pycharm Community from their respective websites.
+1. Run and install Python.
 	* Python (https://www.python.org/downloads/)
-	* PyCharm Community (https://www.jetbrains.com/pycharm/download/#section=windows)
 2. Download the ZIP archive of FiMan's project files from the GitHub repository.
 3. Extract the ZIP to a new folder.
-4. Once PyCharm is installed and running, go to File > Open and select the folder that you extracted the ZIP into.
-	* If PyCharm gives you any errors or warnings regarding a missing interpreter, you may need to reinstall Python or reopen the project.
-5. Go to File > Settings (CTRL+ALT+S) and select Project: [insert folder name]. 
-6. Go to Python Interpreter. Here, you should see a list of packages that came with PyCharm (or packages you have, if it is a preexisting PyCharm install).
-7. On the bottom of this window, click the Install icon (+).
-8. Search for and select the package "requests". Click "Install Package" at the bottom of the window.
 ### Run
-1. To run FiMan, all you need to do is right-click on "landing_page_gui.py" and select "Run". 
+1. To run FiMan, all you need to do is double-click or open "landing_page_gui.py". 
 	* Within a few moments, the program window should appear. If it does not appear, check to see if it is running on your taskbar.
 2. From here, you should then be able to register your profile and utilize the different functions in FiMan.
-3. If you happen to encounter any issues or errors regarding the FinnhubIOKey, PolygonIOKey or NewsAPIKey, you may need to retreive new API keys from the following websites:
+3. If you happen to encounter any issues or errors regarding the FinnhubIOKey or NewsAPIKey, you may need to retreive new API keys from the following websites:
 	* https://finnhub.io/
-	* https://polygon.io/
 	* https://newsapi.org/
 4. To retrieve and replace these keys, simply click the buttons and follow the instructions on the respective websites. Once you have your new keys, you will want to edit your "config.py" file included in the project to remove the old keys and replace them with the new ones. 
 
