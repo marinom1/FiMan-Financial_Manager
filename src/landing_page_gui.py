@@ -1047,6 +1047,8 @@ class SMNewsAndArticlesPage(tk.Frame):
             webbrowser.open_new(url)
 
         def getMarketNews():
+            listBox.delete(0, END)
+
             marketNewsURL = f'https://finnhub.io/api/v1/news?category=general&token={FinnhubIOKey}'
             marketNewsRequest = requests.get(marketNewsURL)
             marketNewsResponse = json.loads(marketNewsRequest.content)
@@ -1065,6 +1067,8 @@ class SMNewsAndArticlesPage(tk.Frame):
                 listBox.insert(END, f'Summary: {summary}')
                 listBox.insert(END, f'Link: {url}')
                 listBox.insert(END, '')
+
+                
 
         listBox.pack(side=TOP, fill=BOTH)
         scroll_bar.config(command=listBox.yview)
